@@ -1,61 +1,133 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🎓 LMS Gamifikasi
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistem Learning Management System (LMS) berbasis gamifikasi, dirancang untuk memotivasi siswa menyelesaikan pembelajaran dengan sistem poin.
 
-## About Laravel
+## 🚀 Fitur Utama
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### 👥 Role Based Access
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+-   **Admin**: Kelola user, lihat statistik poin
+-   **Guru**: Buat modul (materi, tugas), nilai jawaban
+-   **Siswa**: Akses modul, kerjakan tugas, kumpulkan poin
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 📚 Modul
 
-## Learning Laravel
+-   Jenis: `materi`, `tugas`
+-   Tugas dapat diunggah dan dinilai
+-   Materi bisa ditandai sebagai "Selesai" untuk dapat poin
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 📝 Jawaban
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+-   Tugas dikerjakan siswa dengan sistem status:
+    -   `belum`, `draft`, `dikirim`, `terlambat`, `dinilai`
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 🎯 Progress & Poin
 
-## Laravel Sponsors
+-   Siswa mendapat poin saat menyelesaikan:
+    -   Membaca materi
+    -   Mengirim tugas
+-   Data disimpan di tabel `progress`
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+## 🧱 Struktur Tabel
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### `users`
 
-## Contributing
+| Kolom      | Tipe      | Keterangan               |
+| ---------- | --------- | ------------------------ |
+| id         | bigint    | Primary Key              |
+| nama       | string    |                          |
+| nis        | string    | Nullable (siswa saja)    |
+| email      | string    | Unique                   |
+| password   | string    | Hashed                   |
+| role       | enum      | `admin`, `guru`, `murid` |
+| timestamps | timestamp |                          |
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### `modul`
 
-## Code of Conduct
+| Kolom      | Tipe     | Keterangan        |
+| ---------- | -------- | ----------------- |
+| id         | bigint   | PK                |
+| guru_id    | FK       | FK ke `users.id`  |
+| judul      | string   |                   |
+| isi        | text     |                   |
+| jenis      | enum     | `materi`, `tugas` |
+| file_path  | json     | Untuk upload file |
+| deadline   | datetime | Nullable          |
+| timestamps |          |                   |
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### `jawaban`
 
-## Security Vulnerabilities
+| Kolom      | Tipe    | Keterangan                                          |
+| ---------- | ------- | --------------------------------------------------- |
+| id         | bigint  | PK                                                  |
+| modul_id   | FK      | FK ke `modul.id`                                    |
+| siswa_id   | FK      | FK ke `users.id`                                    |
+| file_path  | json    | Upload tugas                                        |
+| nilai      | integer | Nullable                                            |
+| status     | enum    | `belum`, `draft`, `dikirim`, `terlambat`, `dinilai` |
+| timestamps |         |                                                     |
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### `progress`
 
-## License
+| Kolom       | Tipe    | Keterangan          |
+| ----------- | ------- | ------------------- |
+| id          | bigint  | PK                  |
+| user_id     | FK      | FK ke `users.id`    |
+| modul_id    | FK      | FK ke `modul.id`    |
+| jumlah_poin | integer | Poin yang diberikan |
+| timestamps  |         |                     |
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## 📈 Alur Penggunaan Siswa
+
+1. Login → dashboard
+2. Akses daftar modul
+3. **Materi**:
+    - Baca → klik **"Tandai selesai"**
+    - Otomatis tambah ke `progress`
+4. **Tugas**:
+    - Upload file → status `draft`
+    - Klik **"Kumpulkan"** → status `dikirim` / `terlambat`
+    - Guru memberi nilai → status jadi `dinilai`
+5. Total poin tampil di dashboard
+
+---
+
+## 🔮 Fitur Opsional Mendatang
+
+| Fitur         | Deskripsi                          |
+| ------------- | ---------------------------------- |
+| Forum Diskusi | Komentar per materi                |
+| Badge / Level | Level siswa dari akumulasi poin    |
+| Reminder      | Notifikasi deadline tugas          |
+| Ranking       | Leaderboard berdasarkan total poin |
+
+---
+
+## 🛠 Teknologi
+
+-   **Laravel 11**
+-   **Livewire**
+-   **Filament Admin**
+-   **Aiven DB** (PostgreSQL/MySQL)
+-   **S3 Storage** (opsional, upload file)
+-   **Deploy**: Railway, Vercel, atau Render
+
+---
+
+## 🧑‍💻 Pengembangan Selanjutnya
+
+-   [ ] Buat migration dari struktur tabel
+-   [ ] Setup relasi Eloquent di model
+-   [ ] Buat komponen Livewire untuk siswa
+-   [ ] Tambahkan Filament Resource untuk admin & guru
+-   [ ] Tambahkan leaderboard & progress chart
+
+---
+
+## 📄 Lisensi
+
+Proyek ini dapat dikembangkan ulang untuk keperluan pendidikan.
