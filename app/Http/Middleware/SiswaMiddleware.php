@@ -16,18 +16,11 @@ class SiswaMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         if (!auth()->check()) {
-            return redirect('/siswa/login');
+            return redirect('/login');
         }
-
-        $user = auth()->user();
-
-        if ($user->role !== 'murid') {
-            // Redirect to appropriate panel based on role
-            return match ($user->role) {
-                'admin' => redirect('/admin'),
-                'guru' => redirect('/guru'),
-                default => redirect('/siswa/login'),
-            };
+        
+        if (auth()->user()->role !== 'murid') {
+            return redirect('/login')->with('error', 'Anda tidak memiliki akses ke halaman ini');
         }
 
         return $next($request);

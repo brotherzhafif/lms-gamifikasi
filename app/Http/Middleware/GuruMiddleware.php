@@ -16,21 +16,13 @@ class GuruMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         if (!auth()->check()) {
-            return redirect('/guru/login');
+            return redirect('/login');
         }
 
-        $user = auth()->user();
-
-        if ($user->role !== 'guru') {
-            // Redirect to appropriate panel based on role
-            return match ($user->role) {
-                'admin' => redirect('/admin'),
-                'murid' => redirect('/siswa'),
-                default => redirect('/guru/login'),
-            };
+        if (auth()->user()->role !== 'guru') {
+            return redirect('/login')->with('error', 'Anda tidak memiliki akses ke halaman ini');
         }
 
         return $next($request);
     }
 }
-

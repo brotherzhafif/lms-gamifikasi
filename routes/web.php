@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\Request;
 
 // 🔁 Home: Redirect ke panel sesuai role jika sudah login
 Route::get('/', function () {
@@ -15,22 +14,15 @@ Route::get('/', function () {
         };
     }
 
-    return redirect('/admin/login');
+    return redirect('/login');
 });
 
-// 🔐 Login: Redirect manual ke login Filament Admin (shared)
-Route::get('/login', fn() => redirect('/admin/login'))->name('login');
-
-// 🚪 Logout: Manual logout + redirect ke login admin
-Route::post('/logout', function (Request $request) {
-    Auth::logout();
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
-
-    return redirect('/admin/login');
-})->name('logout');
+// 🔐 Login: Halaman login terpusat
+Route::get('/login', \App\Http\Controllers\Auth\LoginController::class)->name('login');
+Route::post('/login', [\App\Http\Controllers\Auth\LoginController::class, 'authenticate'])->name('login.authenticate');
+Route::post('/logout', [\App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');
 
 // 💡 Semua route panel ditangani oleh masing-masing PanelProvider:
-// - /admin → AdminPanelProvider
+// - /admin → AdminPanelProvider 
 // - /guru  → GuruPanelProvider
 // - /siswa → SiswaPanelProvider

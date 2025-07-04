@@ -25,8 +25,6 @@ class SiswaPanelProvider extends PanelProvider
         return $panel
             ->id('siswa')
             ->path('siswa')
-            ->login()
-            ->loginRouteSlug('login')
             ->colors([
                 'primary' => Color::Green,
             ])
@@ -38,7 +36,6 @@ class SiswaPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Siswa/Widgets'), for: 'App\\Filament\\Siswa\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
-                \App\Filament\Siswa\Widgets\ProgressStatsWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

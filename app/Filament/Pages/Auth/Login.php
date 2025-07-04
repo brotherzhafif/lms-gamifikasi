@@ -7,7 +7,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Component;
 use Filament\Pages\Auth\Login as BaseLogin;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\Auth;
 
 class Login extends BaseLogin
 {
@@ -50,21 +49,20 @@ class Login extends BaseLogin
         ];
     }
 
-    public function authenticate(): ?\Filament\Http\Responses\Auth\Contracts\LoginResponse
+    public function authenticate(): \Filament\Http\Responses\Auth\Contracts\LoginResponse|null
     {
-        $data = $this->form->getState();
-
-        if (!Auth::attempt($this->getCredentialsFromFormData($data), $data['remember'] ?? false)) {
-            throw ValidationException::withMessages([
-                'data.email' => __('filament-panels::pages/auth/login.messages.failed'),
-            ]);
+        try {
+            return parent::authenticate();
+        } catch (ValidationException $exception) {
+            throw $exception;
         }
+    }
 
-        $user = Auth::user();
-
-        // Instead of custom redirect, let Filament handle it normally
-        // The main /login route will handle role-based redirects
-        return parent::authenticate();
+    protected function throwFailureValidationException(): never
+    {
+        throw ValidationException::withMessages([
+            'data.email' => __('filament-panels::pages/auth/login.messages.failed'),
+        ]);
     }
 
     public function getTitle(): string
@@ -74,11 +72,12 @@ class Login extends BaseLogin
 
     public function getHeading(): string
     {
-        return 'Masuk ke Sistem LMS';
+        return 'Masuk ke Akun Anda';
     }
 
-    public function getSubHeading(): ?string
+    protected function hasFullWidthFormActions(): bool
     {
-        return 'Masukkan email dan password untuk mengakses sistem pembelajaran';
+        return true;
     }
 }
+

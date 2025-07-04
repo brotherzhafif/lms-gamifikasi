@@ -11,11 +11,12 @@ class LoginResponse implements LoginResponseContract
     {
         $user = Auth::user();
 
+        // Redirect based on user role
         return match ($user->role) {
-            'admin' => redirect()->intended('/admin'),
-            'guru'  => redirect()->intended('/guru'),
-            'murid' => redirect()->intended('/siswa'),
-            default => abort(403),
+            'admin' => redirect('/admin'),
+            'guru' => redirect('/guru'),
+            'murid' => redirect('/siswa'),
+            default => abort(403, 'Role tidak dikenali'),
         };
     }
 }

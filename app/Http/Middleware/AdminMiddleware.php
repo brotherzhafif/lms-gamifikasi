@@ -16,18 +16,11 @@ class AdminMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         if (!auth()->check()) {
-            return redirect('/admin/login');
+            return redirect('/login');
         }
-
-        $user = auth()->user();
-
-        if ($user->role !== 'admin') {
-            // Redirect to appropriate panel based on role
-            return match ($user->role) {
-                'guru' => redirect('/guru'),
-                'murid' => redirect('/siswa'),
-                default => redirect('/admin/login'),
-            };
+        
+        if (auth()->user()->role !== 'admin') {
+            return redirect('/login')->with('error', 'Anda tidak memiliki akses ke halaman ini');
         }
 
         return $next($request);

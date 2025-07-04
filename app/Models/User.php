@@ -52,12 +52,12 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
-     * Filament panel access control
+     * Filament panel access control - allow access to any panel for login
      */
     public function canAccessPanel(Panel $panel): bool
     {
         return match ($panel->getId()) {
-            'admin' => $this->role === 'admin',
+            'admin' => true, // Allow all users to access admin login
             'guru' => $this->role === 'guru',
             'siswa' => $this->role === 'murid',
             default => false,
