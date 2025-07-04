@@ -15,12 +15,7 @@ return new class extends Migration {
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('modul_id')->constrained('modul')->onDelete('cascade');
             $table->integer('jumlah_poin');
-            $table->enum('jenis_aktivitas', ['selesai_materi', 'kirim_tugas', 'nilai_tugas', 'selesai_quiz']);
-            $table->text('keterangan')->nullable();
             $table->timestamps();
-
-            // Prevent duplicate progress for same activity
-            $table->unique(['user_id', 'modul_id', 'jenis_aktivitas']);
         });
     }
 
