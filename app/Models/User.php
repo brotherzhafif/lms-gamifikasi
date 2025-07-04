@@ -7,8 +7,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -50,6 +52,19 @@ class User extends Authenticatable
     }
 
     /**
+     * Filament panel access control
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return match ($panel->getId()) {
+            'admin' => $this->role === 'admin',
+            'guru' => $this->role === 'guru',
+            'siswa' => $this->role === 'murid',
+            default => false,
+        };
+    }
+
+    /**
      * Get the user's name for Filament compatibility
      */
     public function getNameAttribute(): string
@@ -84,8 +99,8 @@ class User extends Authenticatable
     /**
      * Relationship: User has many progress records
      */
-    public function progress(): HasMany
+    public function progresses(): HasMany
     {
-        return $this->hasMany(Progress::class);
+        return $this->hasMany(Progress::class, 'user_id');
     }
 }
