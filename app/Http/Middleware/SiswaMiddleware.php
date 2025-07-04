@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class SiswaMiddleware
 {
@@ -13,15 +13,21 @@ class SiswaMiddleware
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::check()) {
-            return redirect('/login');
+        if (!auth()->check()) {
+            return redirect('/siswa/login');
         }
 
-        if (Auth::user()->role !== 'siswa') {
-            Auth::logout();
-            return redirect('/login')->with('error', 'Unauthorized access.');
+        $user = auth()->user();
+
+        if ($user->role !== 'murid') {
+            // Redirect to appropriate panel based on role
+            return match ($user->role) {
+                'admin' => redirect('/admin'),
+                'guru' => redirect('/guru'),
+                default => redirect('/siswa/login'),
+            };
         }
 
         return $next($request);

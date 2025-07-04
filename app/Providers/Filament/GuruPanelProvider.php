@@ -25,6 +25,8 @@ class GuruPanelProvider extends PanelProvider
         return $panel
             ->id('guru')
             ->path('guru')
+            ->login()
+            ->loginRouteSlug('login')
             ->colors([
                 'primary' => Color::Blue,
             ])
