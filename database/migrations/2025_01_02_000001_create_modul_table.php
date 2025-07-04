@@ -16,8 +16,10 @@ return new class extends Migration {
             $table->string('judul');
             $table->text('isi');
             $table->enum('jenis', ['materi', 'tugas', 'quiz']);
-            $table->json('url_file')->nullable();
+            $table->string('file_path')->nullable();
             $table->datetime('deadline')->nullable();
+            $table->integer('poin_reward')->default(0);
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

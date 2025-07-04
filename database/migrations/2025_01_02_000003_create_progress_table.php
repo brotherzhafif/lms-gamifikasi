@@ -15,6 +15,8 @@ return new class extends Migration {
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('modul_id')->constrained('modul')->onDelete('cascade');
             $table->integer('jumlah_poin');
+            $table->string('jenis_aktivitas');
+            $table->text('keterangan')->nullable();
             $table->timestamps();
         });
     }
