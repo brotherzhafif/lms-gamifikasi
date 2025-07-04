@@ -27,27 +27,39 @@ class ModulResource extends Resource
                 Forms\Components\Select::make('guru_id')
                     ->relationship('guru', 'nama')
                     ->required(),
+
+                Forms\Components\Select::make('mata_pelajaran_id')
+                    ->relationship('mataPelajaran', 'nama_mapel')
+                    ->label('Mata Pelajaran')
+                    ->required(),
+
                 Forms\Components\TextInput::make('judul')
                     ->required()
                     ->maxLength(255),
+
                 Forms\Components\RichEditor::make('isi')
                     ->required()
                     ->columnSpanFull(),
+
                 Forms\Components\Select::make('jenis')
                     ->options([
                         'materi' => 'Materi',
                         'tugas' => 'Tugas',
                     ])
                     ->required(),
+
                 Forms\Components\FileUpload::make('file_path')
                     ->multiple()
                     ->directory('modul-files')
                     ->columnSpanFull(),
+
                 Forms\Components\DateTimePicker::make('deadline'),
+
                 Forms\Components\TextInput::make('poin_reward')
                     ->numeric()
                     ->default(10)
                     ->required(),
+
                 Forms\Components\Toggle::make('is_active')
                     ->default(true),
             ]);
@@ -57,36 +69,54 @@ class ModulResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('mataPelajaran.nama_mapel')
+                    ->label('Mata Pelajaran')
+                    ->badge()
+                    ->color('primary')
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('judul')
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('guru.nama')
                     ->label('Guru')
                     ->sortable(),
+
                 Tables\Columns\BadgeColumn::make('jenis')
                     ->colors([
                         'success' => 'materi',
                         'warning' => 'tugas',
                     ]),
+
                 Tables\Columns\TextColumn::make('poin_reward')
                     ->sortable(),
+
                 Tables\Columns\IconColumn::make('is_active')
                     ->boolean(),
+
                 Tables\Columns\TextColumn::make('deadline')
                     ->dateTime()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                Tables\Filters\SelectFilter::make('mata_pelajaran_id')
+                    ->relationship('mataPelajaran', 'nama_mapel')
+                    ->label('Mata Pelajaran'),
+
                 Tables\Filters\SelectFilter::make('jenis')
                     ->options([
                         'materi' => 'Materi',
                         'tugas' => 'Tugas',
                     ]),
+
                 Tables\Filters\TernaryFilter::make('is_active'),
+
                 Tables\Filters\SelectFilter::make('guru_id')
                     ->relationship('guru', 'nama')
                     ->label('Guru'),

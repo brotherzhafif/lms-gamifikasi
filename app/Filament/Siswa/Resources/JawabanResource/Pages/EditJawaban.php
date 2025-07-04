@@ -81,7 +81,6 @@ class EditJawaban extends EditRecord
                                         ->color(fn(string $state): string => match ($state) {
                                             'materi' => 'success',
                                             'tugas' => 'warning',
-                                            'quiz' => 'danger',
                                             default => 'gray',
                                         }),
 

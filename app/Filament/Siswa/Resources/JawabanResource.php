@@ -40,6 +40,10 @@ class JawabanResource extends Resource
                     ->schema([
                         Forms\Components\Grid::make(2)
                             ->schema([
+                                Forms\Components\Placeholder::make('mata_pelajaran')
+                                    ->label('Mata Pelajaran')
+                                    ->content(fn($record) => $record && $record->modul && $record->modul->mataPelajaran ? $record->modul->mataPelajaran->nama_mapel : '-'),
+
                                 Forms\Components\Placeholder::make('judul_tugas')
                                     ->label('Judul Tugas')
                                     ->content(fn($record) => $record && $record->modul ? $record->modul->judul : '-'),
@@ -103,7 +107,8 @@ class JawabanResource extends Resource
                                 if (!$record || !$record->modul || !$record->modul->isi) {
                                     return 'Tidak ada deskripsi tugas';
                                 }
-                                return $record->modul->isi;
+                                // Remove HTML tags and return plain text
+                                return strip_tags($record->modul->isi);
                             })
                             ->columnSpanFull(),
 
@@ -116,16 +121,14 @@ class JawabanResource extends Resource
 
                                 $files = $record->modul->file_path;
                                 if (is_array($files)) {
-                                    $fileLinks = collect($files)->map(function ($file) {
+                                    return collect($files)->map(function ($file) {
                                         $filename = basename($file);
-                                        return "<a href=\"/storage/{$file}\" target=\"_blank\" class=\"inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium hover:bg-blue-200 transition-colors\">📎 {$filename}</a>";
-                                    })->implode('<br class=\"mb-2\">');
-
-                                    return $fileLinks;
+                                        return "📎 {$filename}";
+                                    })->implode(', ');
                                 }
 
                                 $filename = basename($files);
-                                return "<a href=\"/storage/{$files}\" target=\"_blank\" class=\"inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium hover:bg-blue-200 transition-colors\">📎 {$filename}</a>";
+                                return "📎 {$filename}";
                             })
                             ->columnSpanFull()
                             ->visible(fn($record) => $record && $record->modul && !empty($record->modul->file_path)),
@@ -172,6 +175,12 @@ class JawabanResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('modul.mataPelajaran.nama_mapel')
+                    ->label('Mata Pelajaran')
+                    ->badge()
+                    ->color('primary')
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('modul.judul')
                     ->label('Tugas')
                     ->searchable()
@@ -223,6 +232,10 @@ class JawabanResource extends Resource
                     ->placeholder('Belum dikirim'),
             ])
             ->filters([
+                Tables\Filters\SelectFilter::make('mata_pelajaran')
+                    ->relationship('modul.mataPelajaran', 'nama_mapel')
+                    ->label('Mata Pelajaran'),
+
                 Tables\Filters\SelectFilter::make('status')
                     ->options([
                         'draft' => 'Draft',

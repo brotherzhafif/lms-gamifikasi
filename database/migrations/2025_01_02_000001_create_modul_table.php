@@ -13,6 +13,7 @@ return new class extends Migration {
         Schema::create('modul', function (Blueprint $table) {
             $table->id();
             $table->foreignId('guru_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('mata_pelajaran_id')->constrained('mata_pelajaran')->onDelete('cascade');
             $table->string('judul');
             $table->text('isi');
             $table->enum('jenis', ['materi', 'tugas']);

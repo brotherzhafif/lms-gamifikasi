@@ -15,6 +15,7 @@ class Modul extends Model
 
     protected $fillable = [
         'guru_id',
+        'mata_pelajaran_id',
         'judul',
         'isi',
         'jenis',
@@ -39,11 +40,19 @@ class Modul extends Model
     }
 
     /**
+     * Relationship: Module belongs to a mata pelajaran
+     */
+    public function mataPelajaran(): BelongsTo
+    {
+        return $this->belongsTo(MataPelajaran::class, 'mata_pelajaran_id');
+    }
+
+    /**
      * Relationship: Module has many answers
      */
     public function jawabans(): HasMany
     {
-        return $this->hasMany(Jawaban::class);
+        return $this->hasMany(Jawaban::class, 'modul_id');
     }
 
     /**
@@ -51,6 +60,6 @@ class Modul extends Model
      */
     public function progresses(): HasMany
     {
-        return $this->hasMany(Progress::class);
+        return $this->hasMany(Progress::class, 'modul_id');
     }
 }

@@ -47,7 +47,6 @@ class ViewJawaban extends ViewRecord
                                         ->color(fn(string $state): string => match ($state) {
                                             'materi' => 'success',
                                             'tugas' => 'warning',
-                                            'quiz' => 'danger',
                                             default => 'gray',
                                         }),
 
@@ -56,7 +55,7 @@ class ViewJawaban extends ViewRecord
                                         ->badge()
                                         ->color('warning')
                                         ->formatStateUsing(fn($state) => "⭐ {$state} Poin"),
-                                ]),
+                                ],),
 
                             Infolists\Components\Grid::make(1)
                                 ->schema([
@@ -108,7 +107,7 @@ class ViewJawaban extends ViewRecord
                         Infolists\Components\TextEntry::make('modul.isi')
                             ->label('Deskripsi Tugas')
                             ->prose()
-                            ->html()
+                            ->formatStateUsing(fn($state) => strip_tags($state))
                             ->columnSpanFull(),
                     ])
                     ->collapsible(),
