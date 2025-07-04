@@ -48,17 +48,48 @@ class ModulResource extends Resource
                     ->label('Poin')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('deadline')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
-                    ->color(fn($record) => $record->deadline && $record->deadline->isPast() ? 'danger' : null),
-                Tables\Columns\IconColumn::make('completed')
-                    ->label('Selesai')
+                    ->color(fn($record) => $record->deadline && $record->deadline->isPast() ? 'danger' : null)
+                    ->placeholder('Tidak ada deadline'),
+                Tables\Columns\BadgeColumn::make('status')
+                    ->label('Status')
                     ->getStateUsing(function ($record) {
-                        return Progress::where('user_id', Auth::id())
-                            ->where('modul_id', $record->id)
-                            ->exists();
+                        if ($record->jenis === 'materi') {
+                            // Untuk materi, cek apakah sudah ada progress
+                            $progress = Progress::where('user_id', Auth::id())
+                                ->where('modul_id', $record->id)
+                                ->exists();
+                            return $progress ? 'selesai' : 'belum';
+                        } else {
+                            // Untuk tugas, cek jawaban
+                            $jawaban = Jawaban::where('siswa_id', Auth::id())
+                                ->where('modul_id', $record->id)
+                                ->first();
+
+                            if (!$jawaban) {
+                                return 'belum';
+                            }
+
+                            return $jawaban->status;
+                        }
                     })
-                    ->boolean(),
+                    ->colors([
+                        'secondary' => 'belum',
+                        'warning' => 'draft',
+                        'primary' => 'dikirim',
+                        'danger' => 'terlambat',
+                        'success' => ['dinilai', 'selesai'],
+                    ])
+                    ->formatStateUsing(fn($state) => match ($state) {
+                        'belum' => 'Belum Dikerjakan',
+                        'draft' => 'Draft',
+                        'dikirim' => 'Dikirim',
+                        'terlambat' => 'Terlambat',
+                        'dinilai' => 'Sudah Dinilai',
+                        'selesai' => 'Selesai',
+                        default => 'Belum Dikerjakan'
+                    }),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('jenis')
@@ -66,19 +97,56 @@ class ModulResource extends Resource
                         'materi' => 'Materi',
                         'tugas' => 'Tugas',
                     ]),
-                Tables\Filters\TernaryFilter::make('completed')
-                    ->label('Status Penyelesaian')
-                    ->queries(
-                        true: fn(Builder $query) => $query->whereHas('progresses', function ($q) {
-                            $q->where('user_id', Auth::id());
-                        }),
-                        false: fn(Builder $query) => $query->whereDoesntHave('progresses', function ($q) {
-                            $q->where('user_id', Auth::id());
-                        }),
-                    ),
+
+                Tables\Filters\SelectFilter::make('status')
+                    ->label('Status Pengerjaan')
+                    ->options([
+                        'belum' => 'Belum Dikerjakan',
+                        'draft' => 'Draft',
+                        'dikirim' => 'Dikirim',
+                        'terlambat' => 'Terlambat',
+                        'dinilai' => 'Sudah Dinilai',
+                        'selesai' => 'Selesai',
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        if (!$data['value'])
+                            return $query;
+
+                        $status = $data['value'];
+                        $userId = Auth::id();
+
+                        if ($status === 'selesai') {
+                            // Filter untuk materi yang sudah selesai
+                            return $query->where('jenis', 'materi')
+                                ->whereHas('progresses', function ($q) use ($userId) {
+                                $q->where('user_id', $userId);
+                            });
+                        } elseif ($status === 'belum') {
+                            // Filter untuk yang belum dikerjakan sama sekali
+                            return $query->where(function ($q) use ($userId) {
+                                $q->where('jenis', 'materi')
+                                    ->whereDoesntHave('progresses', function ($subQ) use ($userId) {
+                                        $subQ->where('user_id', $userId);
+                                    });
+                            })->orWhere(function ($q) use ($userId) {
+                                $q->where('jenis', 'tugas')
+                                    ->whereDoesntHave('jawabans', function ($subQ) use ($userId) {
+                                        $subQ->where('siswa_id', $userId);
+                                    });
+                            });
+                        } else {
+                            // Filter untuk status jawaban tugas
+                            return $query->where('jenis', 'tugas')
+                                ->whereHas('jawabans', function ($q) use ($userId, $status) {
+                                $q->where('siswa_id', $userId)
+                                    ->where('status', $status);
+                            });
+                        }
+                    }),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
+
                 Tables\Actions\Action::make('kerjakan')
                     ->label('Kerjakan')
                     ->icon('heroicon-o-pencil-square')
@@ -102,9 +170,8 @@ class ModulResource extends Resource
                             return redirect()->to('/siswa/jawabans/' . $newAnswer->id . '/edit');
                         }
                     })
-                    ->requiresConfirmation()
-                    ->modalHeading(fn($record) => "Kerjakan {$record->jenis}: {$record->judul}")
-                    ->modalSubheading('Anda akan diarahkan ke halaman pengerjaan'),
+                    ->color('primary'),
+
                 Tables\Actions\Action::make('tandai_selesai')
                     ->label('Tandai Selesai')
                     ->icon('heroicon-o-check-circle')

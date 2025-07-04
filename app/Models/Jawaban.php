@@ -46,9 +46,15 @@ class Jawaban extends Model
 
     protected static function booted()
     {
+        // Auto-set submitted_at when status changes to 'dikirim'
         static::saving(function ($jawaban) {
             if ($jawaban->status === 'dikirim' && !$jawaban->submitted_at) {
                 $jawaban->submitted_at = now();
+
+                // Check deadline untuk set status terlambat
+                if ($jawaban->modul && $jawaban->modul->deadline && now()->isAfter($jawaban->modul->deadline)) {
+                    $jawaban->status = 'terlambat';
+                }
             }
         });
     }
