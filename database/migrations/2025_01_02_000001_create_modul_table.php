@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->foreignId('guru_id')->constrained('users')->onDelete('cascade');
             $table->string('judul');
             $table->text('isi');
-            $table->enum('jenis', ['materi', 'tugas', 'quiz']);
+            $table->enum('jenis', ['materi', 'tugas']);
             $table->json('file_path')->nullable();
             $table->timestamp('deadline')->nullable();
             $table->integer('poin_reward')->default(10);

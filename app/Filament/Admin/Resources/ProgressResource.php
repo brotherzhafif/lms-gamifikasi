@@ -63,7 +63,6 @@ class ProgressResource extends Resource
                     ->color(fn($state) => match ($state) {
                         'selesai_materi' => 'info',
                         'selesai_tugas' => 'warning',
-                        'selesai_quiz' => 'success',
                         default => 'gray'
                     }),
                 Tables\Columns\TextColumn::make('created_at')
@@ -76,7 +75,6 @@ class ProgressResource extends Resource
                     ->options([
                         'selesai_materi' => 'Selesai Materi',
                         'selesai_tugas' => 'Selesai Tugas',
-                        'selesai_quiz' => 'Selesai Quiz',
                     ]),
                 Tables\Filters\SelectFilter::make('user_id')
                     ->relationship('user', 'nama')

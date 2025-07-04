@@ -18,7 +18,7 @@ class AdminMiddleware
         if (!auth()->check()) {
             return redirect('/login');
         }
-        
+
         if (auth()->user()->role !== 'admin') {
             return redirect('/login')->with('error', 'Anda tidak memiliki akses ke halaman ini');
         }

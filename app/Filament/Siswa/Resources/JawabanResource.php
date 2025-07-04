@@ -96,7 +96,6 @@ class JawabanResource extends Resource
                     ->label('Jenis Modul')
                     ->options([
                         'tugas' => 'Tugas',
-                        'quiz' => 'Quiz',
                     ]),
             ])
             ->actions([

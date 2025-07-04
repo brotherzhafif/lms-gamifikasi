@@ -1,102 +1,95 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full bg-gray-50">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login - LMS Gamifikasi</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <title>{{ config('app.name', 'LMS Gamifikasi') }} - Login</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+
+    <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="h-full">
-    <div class="min-h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <div class="sm:mx-auto sm:w-full sm:max-w-md">
-            <div class="text-center">
-                <h1 class="text-3xl font-bold text-gray-900">🎓 LMS Gamifikasi</h1>
-                <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                    Masuk ke Akun Anda
-                </h2>
-                <p class="mt-2 text-center text-sm text-gray-600">
-                    Gunakan email dan password untuk mengakses dashboard
-                </p>
+<body class="font-sans text-gray-900 antialiased">
+    <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
+        <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
+            <!-- Logo -->
+            <div class="text-center mb-8">
+                <h1 class="text-2xl font-bold text-gray-900">🎓 LMS Gamifikasi</h1>
+                <p class="text-sm text-gray-600 mt-2">Silakan login untuk melanjutkan</p>
             </div>
-        </div>
 
-        <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-            <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-                @if ($errors->any())
-                    <div class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative">
-                        @foreach ($errors->all() as $error)
-                            <p class="text-sm">{{ $error }}</p>
-                        @endforeach
-                    </div>
-                @endif
+            <!-- Session Status -->
+            @if (session('status'))
+                <div class="mb-4 font-medium text-sm text-green-600">
+                    {{ session('status') }}
+                </div>
+            @endif
 
-                @if (session('error'))
-                    <div class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative">
-                        <p class="text-sm">{{ session('error') }}</p>
-                    </div>
-                @endif
+            <!-- Error Messages -->
+            @if (session('error'))
+                <div class="mb-4 font-medium text-sm text-red-600">
+                    {{ session('error') }}
+                </div>
+            @endif
 
-                <form class="space-y-6" action="{{ route('login.authenticate') }}" method="POST">
-                    @csrf
+            <form method="POST" action="{{ route('login.post') }}">
+                @csrf
 
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700">
-                            Email
-                        </label>
-                        <div class="mt-1">
-                            <input id="email" name="email" type="email" required value="{{ old('email') }}"
-                                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm @error('email') border-red-500 @enderror"
-                                placeholder="user@example.com">
-                        </div>
-                    </div>
+                <!-- Email Address -->
+                <div>
+                    <label for="email" class="block font-medium text-sm text-gray-700">Email</label>
+                    <input id="email"
+                        class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                        type="email" name="email" value="{{ old('email') }}" required autofocus
+                        autocomplete="username" />
+                    @error('email')
+                        <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
+                    @enderror
+                </div>
 
-                    <div>
-                        <label for="password" class="block text-sm font-medium text-gray-700">
-                            Password
-                        </label>
-                        <div class="mt-1">
-                            <input id="password" name="password" type="password" required
-                                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm @error('password') border-red-500 @enderror"
-                                placeholder="Masukkan password">
-                        </div>
-                    </div>
+                <!-- Password -->
+                <div class="mt-4">
+                    <label for="password" class="block font-medium text-sm text-gray-700">Password</label>
+                    <input id="password"
+                        class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                        type="password" name="password" required autocomplete="current-password" />
+                    @error('password')
+                        <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
+                    @enderror
+                </div>
 
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <input id="remember" name="remember" type="checkbox"
-                                class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                            <label for="remember" class="ml-2 block text-sm text-gray-900">
-                                Ingat saya
-                            </label>
-                        </div>
-                    </div>
+                <!-- Remember Me -->
+                <div class="block mt-4">
+                    <label for="remember_me" class="inline-flex items-center">
+                        <input id="remember_me" type="checkbox"
+                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
+                            name="remember">
+                        <span class="ml-2 text-sm text-gray-600">Ingat saya</span>
+                    </label>
+                </div>
 
-                    <div>
-                        <button type="submit"
-                            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
-                            Masuk
-                        </button>
-                    </div>
-                </form>
+                <div class="flex items-center justify-end mt-4">
+                    <button type="submit"
+                        class="ml-3 inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                        Masuk
+                    </button>
+                </div>
+            </form>
 
-                <!-- Role Information -->
-                <div class="mt-8 border-t border-gray-200 pt-6">
-                    <div class="text-center">
-                        <p class="text-xs text-gray-500 mb-3">Akses berdasarkan role:</p>
-                        <div class="flex justify-center space-x-4 text-xs">
-                            <span class="inline-flex items-center px-2 py-1 rounded-full bg-red-100 text-red-800">
-                                👨‍💼 Admin
-                            </span>
-                            <span class="inline-flex items-center px-2 py-1 rounded-full bg-blue-100 text-blue-800">
-                                👨‍🏫 Guru
-                            </span>
-                            <span class="inline-flex items-center px-2 py-1 rounded-full bg-green-100 text-green-800">
-                                👨‍🎓 Siswa
-                            </span>
-                        </div>
-                    </div>
+            <!-- Demo Accounts -->
+            <div class="mt-8 pt-6 border-t border-gray-200">
+                <h3 class="text-sm font-medium text-gray-700 mb-3">Demo Accounts:</h3>
+                <div class="space-y-2 text-xs text-gray-600">
+                    <div>👨‍💼 <strong>Admin:</strong> admin@example.com / password</div>
+                    <div>👨‍🏫 <strong>Guru:</strong> guru@example.com / password</div>
+                    <div>👨‍🎓 <strong>Siswa:</strong> siswa@example.com / password</div>
                 </div>
             </div>
         </div>

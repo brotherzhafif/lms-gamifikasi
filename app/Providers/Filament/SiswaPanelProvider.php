@@ -36,6 +36,7 @@ class SiswaPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Siswa/Widgets'), for: 'App\\Filament\\Siswa\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
+                \App\Filament\Siswa\Widgets\ProgressStatsWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

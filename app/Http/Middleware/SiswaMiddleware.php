@@ -18,7 +18,7 @@ class SiswaMiddleware
         if (!auth()->check()) {
             return redirect('/login');
         }
-        
+
         if (auth()->user()->role !== 'murid') {
             return redirect('/login')->with('error', 'Anda tidak memiliki akses ke halaman ini');
         }

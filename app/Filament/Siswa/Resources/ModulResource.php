@@ -5,9 +5,12 @@ namespace App\Filament\Siswa\Resources;
 use App\Filament\Siswa\Resources\ModulResource\Pages;
 use App\Models\Modul;
 use App\Models\Progress;
+use App\Models\Jawaban;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Forms;
+use Filament\Forms\Form;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
@@ -40,7 +43,6 @@ class ModulResource extends Resource
                     ->colors([
                         'success' => 'materi',
                         'warning' => 'tugas',
-                        'danger' => 'quiz',
                     ]),
                 Tables\Columns\TextColumn::make('poin_reward')
                     ->label('Poin')
@@ -63,7 +65,6 @@ class ModulResource extends Resource
                     ->options([
                         'materi' => 'Materi',
                         'tugas' => 'Tugas',
-                        'quiz' => 'Quiz',
                     ]),
                 Tables\Filters\TernaryFilter::make('completed')
                     ->label('Status Penyelesaian')
@@ -81,8 +82,65 @@ class ModulResource extends Resource
                 Tables\Actions\Action::make('kerjakan')
                     ->label('Kerjakan')
                     ->icon('heroicon-o-pencil-square')
-                    ->visible(fn($record) => in_array($record->jenis, ['tugas', 'quiz']))
-                    ->url(fn($record) => route('siswa.jawaban.create', ['modul' => $record->id])),
+                    ->visible(fn($record) => $record->jenis === 'tugas')
+                    ->action(function ($record) {
+                        // Check if answer already exists
+                        $existingAnswer = Jawaban::where('modul_id', $record->id)
+                            ->where('siswa_id', Auth::id())
+                            ->first();
+
+                        if ($existingAnswer) {
+                            // Redirect to edit existing answer
+                            return redirect()->to('/siswa/jawabans/' . $existingAnswer->id . '/edit');
+                        } else {
+                            // Create new answer
+                            $newAnswer = Jawaban::create([
+                                'modul_id' => $record->id,
+                                'siswa_id' => Auth::id(),
+                                'status' => 'draft',
+                            ]);
+                            return redirect()->to('/siswa/jawabans/' . $newAnswer->id . '/edit');
+                        }
+                    })
+                    ->requiresConfirmation()
+                    ->modalHeading(fn($record) => "Kerjakan {$record->jenis}: {$record->judul}")
+                    ->modalSubheading('Anda akan diarahkan ke halaman pengerjaan'),
+                Tables\Actions\Action::make('tandai_selesai')
+                    ->label('Tandai Selesai')
+                    ->icon('heroicon-o-check-circle')
+                    ->visible(fn($record) => $record->jenis === 'materi' && !Progress::where('user_id', Auth::id())->where('modul_id', $record->id)->exists())
+                    ->action(function ($record) {
+                        Progress::create([
+                            'user_id' => Auth::id(),
+                            'modul_id' => $record->id,
+                            'jumlah_poin' => $record->poin_reward,
+                            'jenis_aktivitas' => 'selesai_materi',
+                            'keterangan' => "Menyelesaikan materi: {$record->judul}",
+                        ]);
+                    })
+                    ->requiresConfirmation()
+                    ->modalHeading('Tandai Materi Selesai')
+                    ->modalSubheading(fn($record) => "Anda akan mendapat {$record->poin_reward} poin")
+                    ->color('success'),
+            ]);
+    }
+
+    // Add form method to support view page
+    public static function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Forms\Components\TextInput::make('judul')
+                    ->disabled(),
+                Forms\Components\Select::make('jenis')
+                    ->options([
+                        'materi' => 'Materi',
+                        'tugas' => 'Tugas',
+                    ])
+                    ->disabled(),
+                Forms\Components\RichEditor::make('isi')
+                    ->disabled()
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -92,5 +150,20 @@ class ModulResource extends Resource
             'index' => Pages\ListModuls::route('/'),
             'view' => Pages\ViewModul::route('/{record}'),
         ];
+    }
+
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return false;
+    }
+
+    public static function canDelete($record): bool
+    {
+        return false;
     }
 }

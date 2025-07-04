@@ -86,7 +86,7 @@ class ModulController extends Controller
         $request->validate([
             'judul' => 'required|string|max:255',
             'isi' => 'required|string',
-            'jenis' => 'required|in:materi,tugas,quiz',
+            'jenis' => 'required|in:materi,tugas',
             'file_path' => 'nullable',
             'deadline' => 'nullable|date',
             'poin_reward' => 'required|integer|min:0',
@@ -116,7 +116,7 @@ class ModulController extends Controller
         $request->validate([
             'judul' => 'required|string|max:255',
             'isi' => 'required|string',
-            'jenis' => 'required|in:materi,tugas,quiz',
+            'jenis' => 'required|in:materi,tugas',
             'file_path' => 'nullable',
             'deadline' => 'nullable|date',
             'poin_reward' => 'required|integer|min:0',

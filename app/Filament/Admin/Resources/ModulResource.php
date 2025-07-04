@@ -37,7 +37,6 @@ class ModulResource extends Resource
                     ->options([
                         'materi' => 'Materi',
                         'tugas' => 'Tugas',
-                        'quiz' => 'Quiz',
                     ])
                     ->required(),
                 Forms\Components\FileUpload::make('file_path')
@@ -68,7 +67,6 @@ class ModulResource extends Resource
                     ->colors([
                         'success' => 'materi',
                         'warning' => 'tugas',
-                        'danger' => 'quiz',
                     ]),
                 Tables\Columns\TextColumn::make('poin_reward')
                     ->sortable(),
@@ -87,7 +85,6 @@ class ModulResource extends Resource
                     ->options([
                         'materi' => 'Materi',
                         'tugas' => 'Tugas',
-                        'quiz' => 'Quiz',
                     ]),
                 Tables\Filters\TernaryFilter::make('is_active'),
                 Tables\Filters\SelectFilter::make('guru_id')
