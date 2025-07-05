@@ -6,15 +6,16 @@ Sistem Learning Management System (LMS) berbasis gamifikasi, dirancang untuk mem
 
 ### 👥 Role Based Access
 
--   **Admin**: Kelola user, lihat statistik poin
--   **Guru**: Buat modul (materi, tugas), nilai jawaban
--   **Siswa**: Akses modul, kerjakan tugas, kumpulkan poin
+-   **Admin**: Kelola user, lihat statistik poin, ranking siswa
+-   **Guru**: Buat modul (materi, tugas), nilai jawaban, ranking siswa dari modul sendiri
+-   **Siswa**: Akses modul, kerjakan tugas, kumpulkan poin, lihat ranking
 
 ### 📚 Modul
 
 -   Jenis: `materi`, `tugas`
 -   Tugas dapat diunggah dan dinilai
 -   Materi bisa ditandai sebagai "Selesai" untuk dapat poin
+-   Terintegrasi dengan mata pelajaran
 
 ### 📝 Jawaban
 
@@ -28,9 +29,26 @@ Sistem Learning Management System (LMS) berbasis gamifikasi, dirancang untuk mem
     -   Mengirim tugas
 -   Data disimpan di tabel `progress`
 
+### 🏆 Ranking System
+
+-   **Siswa**: Lihat ranking pribadi dan posisi di leaderboard
+-   **Guru**: Lihat ranking siswa berdasarkan modul yang dibuat
+-   **Admin**: Lihat ranking lengkap semua siswa dengan statistik
+
 ---
 
 ## 🧱 Struktur Tabel
+
+### `mata_pelajaran`
+
+| Kolom      | Tipe      | Keterangan               |
+| ---------- | --------- | ------------------------ |
+| id         | bigint    | Primary Key              |
+| nama_mapel | string    | Nama mata pelajaran      |
+| kode_mapel | string    | Kode unik mata pelajaran |
+| deskripsi  | text      | Nullable                 |
+| is_active  | boolean   | Default true             |
+| timestamps | timestamp |                          |
 
 ### `users`
 
@@ -46,45 +64,53 @@ Sistem Learning Management System (LMS) berbasis gamifikasi, dirancang untuk mem
 
 ### `modul`
 
-| Kolom      | Tipe     | Keterangan        |
-| ---------- | -------- | ----------------- |
-| id         | bigint   | PK                |
-| guru_id    | FK       | FK ke `users.id`  |
-| judul      | string   |                   |
-| isi        | text     |                   |
-| jenis      | enum     | `materi`, `tugas` |
-| file_path  | json     | Untuk upload file |
-| deadline   | datetime | Nullable          |
-| timestamps |          |                   |
+| Kolom             | Tipe     | Keterangan                |
+| ----------------- | -------- | ------------------------- |
+| id                | bigint   | PK                        |
+| guru_id           | FK       | FK ke `users.id`          |
+| mata_pelajaran_id | FK       | FK ke `mata_pelajaran.id` |
+| judul             | string   |                           |
+| isi               | text     |                           |
+| jenis             | enum     | `materi`, `tugas`         |
+| file_path         | json     | Untuk upload file         |
+| deadline          | datetime | Nullable                  |
+| poin_reward       | integer  | Default 10                |
+| is_active         | boolean  | Default true              |
+| timestamps        |          |                           |
 
 ### `jawaban`
 
-| Kolom      | Tipe    | Keterangan                                          |
-| ---------- | ------- | --------------------------------------------------- |
-| id         | bigint  | PK                                                  |
-| modul_id   | FK      | FK ke `modul.id`                                    |
-| siswa_id   | FK      | FK ke `users.id`                                    |
-| file_path  | json    | Upload tugas                                        |
-| nilai      | integer | Nullable                                            |
-| status     | enum    | `belum`, `draft`, `dikirim`, `terlambat`, `dinilai` |
-| timestamps |         |                                                     |
+| Kolom         | Tipe     | Keterangan                                          |
+| ------------- | -------- | --------------------------------------------------- |
+| id            | bigint   | PK                                                  |
+| modul_id      | FK       | FK ke `modul.id`                                    |
+| siswa_id      | FK       | FK ke `users.id`                                    |
+| isi_jawaban   | text     | Jawaban siswa                                       |
+| url_file      | json     | Upload file jawaban                                 |
+| nilai         | integer  | Nullable                                            |
+| status        | enum     | `belum`, `draft`, `dikirim`, `terlambat`, `dinilai` |
+| submitted_at  | datetime | Nullable                                            |
+| komentar_guru | text     | Nullable                                            |
+| timestamps    |          |                                                     |
 
 ### `progress`
 
-| Kolom       | Tipe    | Keterangan          |
-| ----------- | ------- | ------------------- |
-| id          | bigint  | PK                  |
-| user_id     | FK      | FK ke `users.id`    |
-| modul_id    | FK      | FK ke `modul.id`    |
-| jumlah_poin | integer | Poin yang diberikan |
-| timestamps  |         |                     |
+| Kolom           | Tipe    | Keterangan          |
+| --------------- | ------- | ------------------- |
+| id              | bigint  | PK                  |
+| user_id         | FK      | FK ke `users.id`    |
+| modul_id        | FK      | FK ke `modul.id`    |
+| jumlah_poin     | integer | Poin yang diberikan |
+| jenis_aktivitas | string  | Jenis aktivitas     |
+| keterangan      | text    | Keterangan progress |
+| timestamps      |         |                     |
 
 ---
 
 ## 📈 Alur Penggunaan Siswa
 
 1. Login → dashboard
-2. Akses daftar modul
+2. Akses daftar modul berdasarkan mata pelajaran
 3. **Materi**:
     - Baca → klik **"Tandai selesai"**
     - Otomatis tambah ke `progress`
@@ -93,17 +119,19 @@ Sistem Learning Management System (LMS) berbasis gamifikasi, dirancang untuk mem
     - Klik **"Kumpulkan"** → status `dikirim` / `terlambat`
     - Guru memberi nilai → status jadi `dinilai`
 5. Total poin tampil di dashboard
+6. Lihat ranking di leaderboard
 
 ---
 
-## 🔮 Fitur Opsional Mendatang
+## 🔮 Fitur yang Sudah Implementasi
 
-| Fitur         | Deskripsi                          |
-| ------------- | ---------------------------------- |
-| Forum Diskusi | Komentar per materi                |
-| Badge / Level | Level siswa dari akumulasi poin    |
-| Reminder      | Notifikasi deadline tugas          |
-| Ranking       | Leaderboard berdasarkan total poin |
+| Fitur             | Status | Deskripsi                                   |
+| ----------------- | ------ | ------------------------------------------- |
+| Mata Pelajaran    | ✅     | Sistem kategorisasi modul berdasarkan mapel |
+| Ranking Siswa     | ✅     | Leaderboard untuk siswa, guru, admin        |
+| Progress Tracking | ✅     | Tracking poin dan kemajuan siswa            |
+| File Upload       | ✅     | Upload file untuk tugas dan materi          |
+| Multi-role Access | ✅     | Admin, Guru, Siswa dengan akses berbeda     |
 
 ---
 
@@ -112,19 +140,8 @@ Sistem Learning Management System (LMS) berbasis gamifikasi, dirancang untuk mem
 -   **Laravel 11**
 -   **Livewire**
 -   **Filament Admin**
--   **Aiven DB** (PostgreSQL/MySQL)
--   **S3 Storage** (opsional, upload file)
--   **Deploy**: Railway, Vercel, atau Render
-
----
-
-## 🧑‍💻 Pengembangan Selanjutnya
-
--   [ ] Buat migration dari struktur tabel
--   [ ] Setup relasi Eloquent di model
--   [ ] Buat komponen Livewire untuk siswa
--   [ ] Tambahkan Filament Resource untuk admin & guru
--   [ ] Tambahkan leaderboard & progress chart
+-   **PostgreSQL/MySQL**
+-   **File Storage** (local/S3)
 
 ---
 

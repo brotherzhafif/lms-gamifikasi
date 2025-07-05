@@ -26,7 +26,10 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
+            // ->login()
+            ->brandName('LMS Gamifikasi - Admin')
+            ->brandLogo(asset('images/logo.png'))
+            ->favicon(asset('images/favicon.ico'))
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -59,6 +62,8 @@ class AdminPanelProvider extends PanelProvider
                 'Manajemen User',
                 'Modul & Pembelajaran',
                 'Statistik',
-            ]);
+            ])
+            ->loginRouteSlug('login')
+            ->font('Inter');
     }
 }

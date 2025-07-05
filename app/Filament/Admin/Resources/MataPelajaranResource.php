@@ -16,11 +16,13 @@ class MataPelajaranResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
 
-    protected static ?string $navigationGroup = 'Manajemen User';
+    protected static ?string $navigationGroup = 'Modul & Pembelajaran';
 
     protected static ?string $navigationLabel = 'Mata Pelajaran';
 
     protected static ?string $pluralModelLabel = 'Mata Pelajaran';
+
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {

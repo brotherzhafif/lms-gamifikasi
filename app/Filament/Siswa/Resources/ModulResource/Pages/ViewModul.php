@@ -10,6 +10,7 @@ use Filament\Resources\Pages\ViewRecord;
 use Filament\Support\Enums\FontWeight;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
+use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 
 class ViewModul extends ViewRecord
@@ -20,18 +21,25 @@ class ViewModul extends ViewRecord
     {
         return $infolist
             ->schema([
-                Infolists\Components\Section::make('Informasi Modul')
+                Infolists\Components\Section::make('📋 Informasi Modul')
                     ->schema([
                         Infolists\Components\Split::make([
                             Infolists\Components\Grid::make(2)
                                 ->schema([
+                                    Infolists\Components\TextEntry::make('mataPelajaran.nama_mapel')
+                                        ->label('Mata Pelajaran')
+                                        ->badge()
+                                        ->color('primary'),
+
                                     Infolists\Components\TextEntry::make('judul')
                                         ->label('Judul Modul')
                                         ->weight(FontWeight::Bold)
                                         ->size(Infolists\Components\TextEntry\TextEntrySize::Large),
+
                                     Infolists\Components\TextEntry::make('guru.nama')
                                         ->label('Pengajar')
                                         ->icon('heroicon-m-user'),
+
                                     Infolists\Components\TextEntry::make('jenis')
                                         ->badge()
                                         ->color(fn(string $state): string => match ($state) {
@@ -45,102 +53,111 @@ class ViewModul extends ViewRecord
                                         ->color('warning')
                                         ->formatStateUsing(fn($state) => "⭐ {$state} Poin"),
                                 ]),
+
                             Infolists\Components\Grid::make(1)
                                 ->schema([
                                     Infolists\Components\TextEntry::make('deadline')
                                         ->label('Deadline')
-                                        ->dateTime()
+                                        ->dateTime('d/m/Y H:i')
                                         ->placeholder('Tidak ada deadline')
                                         ->color(fn($record) => $record->deadline && $record->deadline->isPast() ? 'danger' : 'success')
                                         ->icon('heroicon-m-clock'),
+
                                     Infolists\Components\TextEntry::make('status_completion')
                                         ->label('Status Penyelesaian')
                                         ->getStateUsing(function ($record) {
-                                            $progress = Progress::where('user_id', Auth::id())
-                                                ->where('modul_id', $record->id)
-                                                ->first();
-                                            return $progress ? 'Selesai' : 'Belum Selesai';
+                                            if ($record->jenis === 'materi') {
+                                                $progress = Progress::where('user_id', Auth::id())
+                                                    ->where('modul_id', $record->id)
+                                                    ->first();
+                                                return $progress ? 'Selesai' : 'Belum Selesai';
+                                            } else {
+                                                $jawaban = Jawaban::where('siswa_id', Auth::id())
+                                                    ->where('modul_id', $record->id)
+                                                    ->first();
+
+                                                if (!$jawaban)
+                                                    return 'Belum dikerjakan';
+
+                                                return match ($jawaban->status) {
+                                                    'draft' => 'Draft',
+                                                    'dikirim' => 'Sudah dikirim',
+                                                    'terlambat' => 'Terlambat',
+                                                    'dinilai' => "Dinilai: {$jawaban->nilai}/100",
+                                                    default => 'Belum dikerjakan'
+                                                };
+                                            }
                                         })
                                         ->badge()
                                         ->color(function ($record) {
-                                            $progress = Progress::where('user_id', Auth::id())
-                                                ->where('modul_id', $record->id)
-                                                ->exists();
-                                            return $progress ? 'success' : 'gray';
+                                            if ($record->jenis === 'materi') {
+                                                $progress = Progress::where('user_id', Auth::id())
+                                                    ->where('modul_id', $record->id)
+                                                    ->exists();
+                                                return $progress ? 'success' : 'gray';
+                                            } else {
+                                                $jawaban = Jawaban::where('siswa_id', Auth::id())
+                                                    ->where('modul_id', $record->id)
+                                                    ->first();
+
+                                                if (!$jawaban)
+                                                    return 'danger';
+
+                                                return match ($jawaban->status) {
+                                                    'draft' => 'warning',
+                                                    'dikirim' => 'info',
+                                                    'terlambat' => 'danger',
+                                                    'dinilai' => 'success',
+                                                    default => 'danger'
+                                                };
+                                            }
                                         }),
                                 ]),
                         ])->from('lg'),
-                    ]),
+                    ])
+                    ->collapsible()
+                    ->collapsed(false),
 
-                Infolists\Components\Section::make('Konten Modul')
+                Infolists\Components\Section::make('📖 Konten Modul')
                     ->schema([
                         Infolists\Components\TextEntry::make('isi')
                             ->label('')
-                            ->html()
+                            ->prose()
+                            ->formatStateUsing(fn($state) => strip_tags($state))
                             ->columnSpanFull(),
-                    ]),
-
-                Infolists\Components\Section::make('File Lampiran')
-                    ->schema([
-                        Infolists\Components\TextEntry::make('file_path')
-                            ->label('File Terlampir')
-                            ->listWithLineBreaks()
-                            ->placeholder('Tidak ada file')
-                            ->formatStateUsing(function ($state) {
-                                if (!$state)
-                                    return null;
-                                $files = is_array($state) ? $state : [$state];
-                                return collect($files)->map(function ($file) {
-                                    return "<a href='/storage/{$file}' target='_blank' class='text-blue-600 hover:text-blue-800 underline'>" . basename($file) . "</a>";
-                                })->join('<br>');
-                            })
-                            ->html(),
                     ])
-                    ->visible(fn($record) => !empty($record->file_path)),
+                    ->collapsible()
+                    ->collapsed(false),
 
-                Infolists\Components\Section::make('Status Jawaban')
+                Infolists\Components\Section::make('📎 File Lampiran')
                     ->schema([
-                        Infolists\Components\TextEntry::make('answer_status')
-                            ->label('Status Jawaban Anda')
-                            ->getStateUsing(function ($record) {
-                                if ($record->jenis === 'materi') {
-                                    return 'Tidak perlu jawaban';
-                                }
+                        Infolists\Components\RepeatableEntry::make('file_path')
+                            ->label('File Terlampir')
+                            ->schema([
+                                Infolists\Components\TextEntry::make('.')
+                                    ->formatStateUsing(function ($state) {
+                                        $filename = basename($state);
+                                        $extension = pathinfo($state, PATHINFO_EXTENSION);
+                                        $icon = match (strtolower($extension)) {
+                                            'pdf' => '📄',
+                                            'doc', 'docx' => '📝',
+                                            'ppt', 'pptx' => '📊',
+                                            'jpg', 'jpeg', 'png' => '🖼️',
+                                            default => '📎'
+                                        };
+                                        return "{$icon} {$filename}";
+                                    })
+                                    ->url(fn($state) => asset('storage/' . $state))
+                                    ->openUrlInNewTab(),
+                            ])
+                            ->columnSpanFull(),
+                    ])
+                    ->visible(fn($record) => !empty($record->file_path))
+                    ->collapsible()
+                    ->collapsed(false),
 
-                                $jawaban = Jawaban::where('modul_id', $record->id)
-                                    ->where('siswa_id', Auth::id())
-                                    ->first();
-
-                                if (!$jawaban) {
-                                    return 'Belum dikerjakan';
-                                }
-
-                                return match ($jawaban->status) {
-                                    'draft' => 'Draft',
-                                    'dikirim' => 'Sudah dikirim',
-                                    'dinilai' => "Dinilai: {$jawaban->nilai}/100",
-                                    default => 'Belum dikerjakan'
-                                };
-                            })
-                            ->badge()
-                            ->color(function ($record) {
-                                if ($record->jenis === 'materi')
-                                    return 'gray';
-
-                                $jawaban = Jawaban::where('modul_id', $record->id)
-                                    ->where('siswa_id', Auth::id())
-                                    ->first();
-
-                                if (!$jawaban)
-                                    return 'danger';
-
-                                return match ($jawaban->status) {
-                                    'draft' => 'warning',
-                                    'dikirim' => 'info',
-                                    'dinilai' => 'success',
-                                    default => 'danger'
-                                };
-                            }),
+                Infolists\Components\Section::make('💬 Feedback Guru')
+                    ->schema([
                         Infolists\Components\TextEntry::make('teacher_comment')
                             ->label('Komentar Guru')
                             ->getStateUsing(function ($record) {
@@ -149,24 +166,29 @@ class ViewModul extends ViewRecord
                                     ->first();
                                 return $jawaban?->komentar_guru;
                             })
-                            ->placeholder('Belum ada komentar')
-                            ->visible(function ($record) {
-                                $jawaban = Jawaban::where('modul_id', $record->id)
-                                    ->where('siswa_id', Auth::id())
-                                    ->first();
-                                return $jawaban && $jawaban->komentar_guru;
-                            }),
+                            ->prose()
+                            ->placeholder('Belum ada komentar dari guru')
+                            ->columnSpanFull(),
                     ])
-                    ->visible(fn($record) => $record->jenis === 'tugas'),
+                    ->visible(function ($record) {
+                        if ($record->jenis !== 'tugas')
+                            return false;
+
+                        $jawaban = Jawaban::where('modul_id', $record->id)
+                            ->where('siswa_id', Auth::id())
+                            ->first();
+                        return $jawaban && $jawaban->komentar_guru;
+                    })
+                    ->collapsible(),
             ]);
     }
 
     protected function getHeaderActions(): array
     {
         return [
-            // Action untuk tandai selesai (materi)
+            // Action untuk tandai selesai (materi) - moved here from table
             Actions\Action::make('tandai_selesai')
-                ->label('Tandai Selesai')
+                ->label('✅ Tandai Selesai')
                 ->icon('heroicon-o-check-circle')
                 ->color('success')
                 ->visible(function () {
@@ -186,11 +208,18 @@ class ViewModul extends ViewRecord
                         'keterangan' => "Menyelesaikan materi: {$record->judul}",
                     ]);
 
+                    Notification::make()
+                        ->title('Materi berhasil diselesaikan!')
+                        ->body("Anda mendapat {$record->poin_reward} poin")
+                        ->success()
+                        ->send();
+
                     $this->redirect($this->getResource()::getUrl('view', ['record' => $record]));
                 })
                 ->requiresConfirmation()
                 ->modalHeading('Tandai Materi Selesai')
-                ->modalSubheading(fn() => "Anda akan mendapat {$this->getRecord()->poin_reward} poin"),
+                ->modalSubheading(fn() => "Pastikan Anda sudah membaca dan memahami materi ini. Anda akan mendapat {$this->getRecord()->poin_reward} poin.")
+                ->modalIcon('heroicon-o-academic-cap'),
 
             // Action untuk kerjakan tugas
             Actions\Action::make('kerjakan')
@@ -201,13 +230,27 @@ class ViewModul extends ViewRecord
                         ->first();
 
                     if ($jawaban) {
-                        return $jawaban->status === 'draft' ? 'Lanjutkan Mengerjakan' : 'Lihat Jawaban';
+                        return $jawaban->status === 'draft' ? '✏️ Lanjutkan Mengerjakan' : '👁️ Lihat Jawaban';
                     }
 
-                    return 'Mulai Mengerjakan';
+                    return '🚀 Mulai Mengerjakan';
                 })
-                ->icon('heroicon-o-pencil-square')
-                ->color('primary')
+                ->icon(function () {
+                    $record = $this->getRecord();
+                    $jawaban = Jawaban::where('modul_id', $record->id)
+                        ->where('siswa_id', Auth::id())
+                        ->first();
+
+                    return $jawaban && $jawaban->status !== 'draft' ? 'heroicon-o-eye' : 'heroicon-o-pencil-square';
+                })
+                ->color(function () {
+                    $record = $this->getRecord();
+                    $jawaban = Jawaban::where('modul_id', $record->id)
+                        ->where('siswa_id', Auth::id())
+                        ->first();
+
+                    return $jawaban && $jawaban->status !== 'draft' ? 'info' : 'primary';
+                })
                 ->visible(fn() => $this->getRecord()->jenis === 'tugas')
                 ->action(function () {
                     $record = $this->getRecord();
@@ -222,14 +265,20 @@ class ViewModul extends ViewRecord
                             'siswa_id' => Auth::id(),
                             'status' => 'draft',
                         ]);
+                        return redirect()->to("/siswa/jawabans/{$jawaban->id}/edit");
                     }
 
-                    return redirect()->to("/siswa/jawabans/{$jawaban->id}/edit");
+                    // If draft, go to edit; otherwise go to view
+                    if ($jawaban->status === 'draft') {
+                        return redirect()->to("/siswa/jawabans/{$jawaban->id}/edit");
+                    } else {
+                        return redirect()->to("/siswa/jawabans/{$jawaban->id}");
+                    }
                 }),
 
             // Back to list action
             Actions\Action::make('back')
-                ->label('Kembali ke Daftar')
+                ->label('⬅️ Kembali ke Daftar')
                 ->icon('heroicon-o-arrow-left')
                 ->color('gray')
                 ->url(fn() => $this->getResource()::getUrl('index')),

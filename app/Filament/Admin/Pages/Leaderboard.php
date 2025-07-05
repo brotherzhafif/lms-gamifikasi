@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Siswa\Pages;
+namespace App\Filament\Admin\Pages;
 
 use App\Models\User;
 use App\Models\Progress;
@@ -8,13 +8,12 @@ use App\Models\Modul;
 use App\Models\MataPelajaran;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Reactive;
 
 class Leaderboard extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-trophy';
-    protected static ?string $navigationGroup = 'Progress Saya';
+    protected static ?string $navigationGroup = 'Statistik';
     protected static ?string $navigationLabel = 'Ranking Siswa';
     protected static string $view = 'filament.leaderboard';
 
@@ -46,18 +45,6 @@ class Leaderboard extends Page
                 $user->ranking = $index + 1;
                 return $user;
             });
-    }
-
-    public function getMyRanking()
-    {
-        $leaderboard = $this->getLeaderboard();
-        $myRecord = $leaderboard->where('id', Auth::id())->first();
-        return $myRecord ? $myRecord->ranking : 0;
-    }
-
-    public function getMyTotalPoints()
-    {
-        return Progress::where('user_id', Auth::id())->sum('jumlah_poin');
     }
 
     public function getTotalStudents()

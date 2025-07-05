@@ -83,10 +83,10 @@ class JawabanResource extends Resource
                     ->sortable(),
                 Tables\Columns\BadgeColumn::make('status')
                     ->colors([
-                        'secondary' => 'belum',
+                        'danger' => 'belum',
                         'warning' => 'draft',
                         'primary' => 'dikirim',
-                        'danger' => 'terlambat',
+                        'secondary' => 'terlambat',
                         'success' => 'dinilai',
                     ]),
                 Tables\Columns\TextColumn::make('nilai')

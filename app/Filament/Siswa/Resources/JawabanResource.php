@@ -18,7 +18,7 @@ class JawabanResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected static ?string $navigationGroup = 'Tugas & Kuis';
+    protected static ?string $navigationGroup = 'Tugas';
 
     protected static ?string $navigationLabel = 'Jawaban Saya';
 
@@ -135,7 +135,7 @@ class JawabanResource extends Resource
                     ])
                     ->visible(fn($context) => $context === 'edit')
                     ->collapsible()
-                    ->collapsed(true),
+                    ->collapsed(false),
 
                 Forms\Components\Section::make('✏️ Jawaban Tugas')
                     ->schema([
@@ -193,10 +193,10 @@ class JawabanResource extends Resource
                 Tables\Columns\BadgeColumn::make('status')
                     ->label('Status')
                     ->colors([
-                        'secondary' => 'belum',
+                        'danger' => 'belum',
                         'warning' => 'draft',
                         'primary' => 'dikirim',
-                        'danger' => 'terlambat',
+                        'secondary' => 'terlambat',
                         'success' => 'dinilai',
                     ])
                     ->formatStateUsing(fn($state) => match ($state) {

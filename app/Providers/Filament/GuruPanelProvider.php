@@ -25,7 +25,9 @@ class GuruPanelProvider extends PanelProvider
         return $panel
             ->id('guru')
             ->path('guru')
-            // No ->login() here - will use central login
+            ->brandName('LMS Gamifikasi - Guru')
+            ->brandLogo(asset('images/logo.png'))
+            ->favicon(asset('images/favicon.ico'))
             ->colors([
                 'primary' => Color::Blue,
             ])
@@ -56,7 +58,9 @@ class GuruPanelProvider extends PanelProvider
             ->navigationGroups([
                 'Modul Saya',
                 'Penilaian',
-                'Progress Siswa',
-            ]);
+                'Laporan',
+            ])
+            ->loginRouteSlug('login')
+            ->font('Inter');
     }
 }

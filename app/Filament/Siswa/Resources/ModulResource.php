@@ -33,6 +33,12 @@ class ModulResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('mataPelajaran.nama_mapel')
+                    ->label('Mata Pelajaran')
+                    ->badge()
+                    ->color('primary')
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('judul')
                     ->searchable()
                     ->sortable(),
@@ -75,10 +81,10 @@ class ModulResource extends Resource
                         }
                     })
                     ->colors([
-                        'secondary' => 'belum',
+                        'danger' => 'belum',
                         'warning' => 'draft',
                         'primary' => 'dikirim',
-                        'danger' => 'terlambat',
+                        'secondary' => 'terlambat',
                         'success' => ['dinilai', 'selesai'],
                     ])
                     ->formatStateUsing(fn($state) => match ($state) {
@@ -150,7 +156,18 @@ class ModulResource extends Resource
                 Tables\Actions\Action::make('kerjakan')
                     ->label('Kerjakan')
                     ->icon('heroicon-o-pencil-square')
-                    ->visible(fn($record) => $record->jenis === 'tugas')
+                    ->visible(function ($record) {
+                        if ($record->jenis !== 'tugas')
+                            return false;
+
+                        // Check if answer exists and its status
+                        $jawaban = Jawaban::where('modul_id', $record->id)
+                            ->where('siswa_id', Auth::id())
+                            ->first();
+
+                        // Only allow editing if no answer exists or if status is 'draft'
+                        return !$jawaban || $jawaban->status === 'draft';
+                    })
                     ->action(function ($record) {
                         // Check if answer already exists
                         $existingAnswer = Jawaban::where('modul_id', $record->id)
@@ -172,23 +189,30 @@ class ModulResource extends Resource
                     })
                     ->color('primary'),
 
-                Tables\Actions\Action::make('tandai_selesai')
-                    ->label('Tandai Selesai')
-                    ->icon('heroicon-o-check-circle')
-                    ->visible(fn($record) => $record->jenis === 'materi' && !Progress::where('user_id', Auth::id())->where('modul_id', $record->id)->exists())
-                    ->action(function ($record) {
-                        Progress::create([
-                            'user_id' => Auth::id(),
-                            'modul_id' => $record->id,
-                            'jumlah_poin' => $record->poin_reward,
-                            'jenis_aktivitas' => 'selesai_materi',
-                            'keterangan' => "Menyelesaikan materi: {$record->judul}",
-                        ]);
+                Tables\Actions\Action::make('lihat_jawaban')
+                    ->label('Lihat Jawaban')
+                    ->icon('heroicon-o-eye')
+                    ->visible(function ($record) {
+                        if ($record->jenis !== 'tugas')
+                            return false;
+
+                        // Check if answer exists and is submitted or graded
+                        $jawaban = Jawaban::where('modul_id', $record->id)
+                            ->where('siswa_id', Auth::id())
+                            ->first();
+
+                        return $jawaban && in_array($jawaban->status, ['dikirim', 'terlambat', 'dinilai']);
                     })
-                    ->requiresConfirmation()
-                    ->modalHeading('Tandai Materi Selesai')
-                    ->modalSubheading(fn($record) => "Anda akan mendapat {$record->poin_reward} poin")
-                    ->color('success'),
+                    ->action(function ($record) {
+                        $jawaban = Jawaban::where('modul_id', $record->id)
+                            ->where('siswa_id', Auth::id())
+                            ->first();
+
+                        return redirect()->to('/siswa/jawabans/' . $jawaban->id);
+                    })
+                    ->color('info'),
+
+                // Remove tandai_selesai action from table - now only in detail page
             ]);
     }
 

@@ -25,6 +25,9 @@ class SiswaPanelProvider extends PanelProvider
         return $panel
             ->id('siswa')
             ->path('siswa')
+            ->brandName('LMS Gamifikasi - Siswa')
+            ->brandLogo(asset('images/logo.png'))
+            ->favicon(asset('images/favicon.ico'))
             ->colors([
                 'primary' => Color::Green,
             ])
@@ -55,8 +58,10 @@ class SiswaPanelProvider extends PanelProvider
             ])
             ->navigationGroups([
                 'Pembelajaran',
-                'Tugas & Kuis',
+                'Tugas',
                 'Progress Saya',
-            ]);
+            ])
+            ->loginRouteSlug('login')
+            ->font('Inter');
     }
 }

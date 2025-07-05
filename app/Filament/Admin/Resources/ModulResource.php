@@ -20,6 +20,8 @@ class ModulResource extends Resource
 
     protected static ?string $navigationLabel = 'Semua Modul';
 
+    protected static ?int $navigationSort = 2;
+
     public static function form(Form $form): Form
     {
         return $form
