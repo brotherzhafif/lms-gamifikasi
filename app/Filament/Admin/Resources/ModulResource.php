@@ -69,7 +69,7 @@ class ModulResource extends Resource
                     ])
                     ->maxSize(10240) // 10MB
                     ->downloadable()
-                    ->previewable()
+                    ->openable()
                     ->columnSpanFull()
                     ->helperText('File yang diizinkan: PDF, DOC, DOCX, PPT, PPTX, JPG, PNG, ZIP, TXT (Maksimal 10MB per file)'),
 

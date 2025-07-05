@@ -12,6 +12,7 @@ use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
+use Filament\Forms;
 
 class ViewModul extends ViewRecord
 {
@@ -131,25 +132,25 @@ class ViewModul extends ViewRecord
 
                 Infolists\Components\Section::make('📎 File Lampiran')
                     ->schema([
-                        Infolists\Components\RepeatableEntry::make('file_path')
-                            ->label('File Terlampir')
-                            ->schema([
-                                Infolists\Components\TextEntry::make('.')
-                                    ->formatStateUsing(function ($state) {
-                                        $filename = basename($state);
-                                        $extension = pathinfo($state, PATHINFO_EXTENSION);
-                                        $icon = match (strtolower($extension)) {
-                                            'pdf' => '📄',
-                                            'doc', 'docx' => '📝',
-                                            'ppt', 'pptx' => '📊',
-                                            'jpg', 'jpeg', 'png' => '🖼️',
-                                            default => '📎'
-                                        };
-                                        return "{$icon} {$filename}";
-                                    })
-                                    ->url(fn($state) => asset('storage/' . $state))
-                                    ->openUrlInNewTab(),
-                            ])
+                        Infolists\Components\TextEntry::make('file_path')
+                            ->label('File Lampiran')
+                            ->formatStateUsing(function ($state) {
+                                if (empty($state)) {
+                                    return 'Tidak ada file lampiran';
+                                }
+
+                                $files = is_array($state) ? $state : [$state];
+                                $buttons = [];
+
+                                foreach ($files as $file) {
+                                    $fileName = basename($file);
+                                    $fileUrl = asset('storage/' . $file);
+                                    $buttons[] = "<a href='{$fileUrl}' target='_blank' class='inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors duration-200 mr-2 mb-2 no-underline'><svg class='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'></path></svg>{$fileName}</a>";
+                                }
+
+                                return implode(' ', $buttons);
+                            })
+                            ->html()
                             ->columnSpanFull(),
                     ])
                     ->visible(fn($record) => !empty($record->file_path))
