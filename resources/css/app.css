@@ -9,3 +9,23 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* Custom logo styling for Filament panels */
+.fi-logo img {
+    max-height: 40px;
+    width: auto;
+}
+
+/* Make sure the logo maintains aspect ratio */
+.fi-sidebar-nav-groups .fi-logo img,
+.fi-topbar .fi-logo img {
+    height: 32px;
+    width: auto;
+    object-fit: contain;
+}
+
+/* Additional styling for better logo appearance */
+.fi-logo {
+    display: flex;
+    align-items: center;
+}

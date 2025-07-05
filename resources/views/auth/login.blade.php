@@ -14,15 +14,27 @@
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+    </style>
 </head>
 
-<body class="font-sans text-gray-900 antialiased">
-    <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-        <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
-            <!-- Logo -->
+<body class="font-sans antialiased">
+    <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0">
+        <div class="w-full sm:max-w-md mt-6 p-6 bg-white shadow-xl overflow-hidden sm:rounded-lg">
+            <!-- Logo & Title -->
             <div class="text-center mb-8">
-                <h1 class="text-2xl font-bold text-gray-900">🎓 LMS Gamifikasi</h1>
-                <p class="text-sm text-gray-600 mt-2">Silakan login untuk melanjutkan</p>
+                <div class="w-16 h-16 mx-auto mb-4 bg-indigo-100 rounded-full flex items-center justify-center">
+                    <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253z" />
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-900">LMS Gamifikasi</h1>
+                <p class="text-gray-600 mt-2">Masuk ke platform pembelajaran</p>
             </div>
 
             <!-- Session Status -->
@@ -46,7 +58,7 @@
                 <div>
                     <label for="email" class="block font-medium text-sm text-gray-700">Email</label>
                     <input id="email"
-                        class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                        class="block mt-1 p-2 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
                         type="email" name="email" value="{{ old('email') }}" required autofocus
                         autocomplete="username" />
                     @error('email')
@@ -58,7 +70,7 @@
                 <div class="mt-4">
                     <label for="password" class="block font-medium text-sm text-gray-700">Password</label>
                     <input id="password"
-                        class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                        class="block mt-1 w-full  p-2 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
                         type="password" name="password" required autocomplete="current-password" />
                     @error('password')
                         <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
@@ -75,23 +87,17 @@
                     </label>
                 </div>
 
-                <div class="flex items-center justify-end mt-4">
+                <div class="flex items-center justify-end mt-6">
                     <button type="submit"
-                        class="ml-3 inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md transition duration-200">
                         Masuk
                     </button>
                 </div>
             </form>
+        </div>
 
-            <!-- Demo Accounts -->
-            <div class="mt-8 pt-6 border-t border-gray-200">
-                <h3 class="text-sm font-medium text-gray-700 mb-3">Demo Accounts:</h3>
-                <div class="space-y-2 text-xs text-gray-600">
-                    <div>👨‍💼 <strong>Admin:</strong> admin@lms.id / password</div>
-                    <div>👨‍🏫 <strong>Guru:</strong> guru.matematika@lms.id / password</div>
-                    <div>👨‍🎓 <strong>Siswa:</strong> siswa@lms.id / password</div>
-                </div>
-            </div>
+        <div class="mt-8 text-white text-sm opacity-80">
+            &copy; {{ date('Y') }} LMS Gamifikasi. All rights reserved.
         </div>
     </div>
 </body>

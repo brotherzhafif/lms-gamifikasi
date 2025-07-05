@@ -26,8 +26,9 @@ class GuruPanelProvider extends PanelProvider
             ->id('guru')
             ->path('guru')
             ->brandName('LMS Gamifikasi - Guru')
-            ->brandLogo(asset('images/logo.png'))
-            ->favicon(asset('images/favicon.ico'))
+            ->brandLogo(asset('icon.png'))
+            ->brandLogoHeight('2rem')
+            ->favicon(asset('icon.png'))
             ->colors([
                 'primary' => Color::Blue,
             ])

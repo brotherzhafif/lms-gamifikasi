@@ -26,10 +26,10 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            // ->login()
             ->brandName('LMS Gamifikasi - Admin')
-            ->brandLogo(asset('images/logo.png'))
-            ->favicon(asset('images/favicon.ico'))
+            ->brandLogo(asset('icon.png'))
+            ->brandLogoHeight('2rem')
+            ->favicon(asset('icon.png'))
             ->colors([
                 'primary' => Color::Amber,
             ])

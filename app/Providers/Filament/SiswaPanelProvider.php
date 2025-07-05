@@ -26,8 +26,9 @@ class SiswaPanelProvider extends PanelProvider
             ->id('siswa')
             ->path('siswa')
             ->brandName('LMS Gamifikasi - Siswa')
-            ->brandLogo(asset('images/logo.png'))
-            ->favicon(asset('images/favicon.ico'))
+            ->brandLogo(asset('icon.png'))
+            ->brandLogoHeight('2rem')
+            ->favicon(asset('icon.png'))
             ->colors([
                 'primary' => Color::Green,
             ])
