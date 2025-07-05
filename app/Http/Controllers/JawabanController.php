@@ -106,7 +106,7 @@ class JawabanController extends Controller
             'modul_id' => 'required|exists:modul,id',
             'isi_jawaban' => 'nullable|string',
             'url_file' => 'nullable|array',
-            'url_file.*' => 'file|max:10240', // 10MB max per file
+            'url_file.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png,zip,txt|max:10240', // 10MB max per file
         ]);
 
         $files = [];

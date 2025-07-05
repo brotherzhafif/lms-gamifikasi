@@ -149,13 +149,39 @@ class JawabanResource extends Resource
                         Forms\Components\FileUpload::make('url_file')
                             ->label('Upload File Pendukung')
                             ->multiple()
+                            ->disk(config('filesystems.default', 'public'))
                             ->directory('jawaban-files')
-                            ->acceptedFileTypes(['pdf', 'doc', 'docx', 'jpg', 'png', 'zip'])
+                            ->acceptedFileTypes([
+                                'application/pdf',
+                                'application/msword',
+                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                                'image/jpeg',
+                                'image/png',
+                                'image/jpg',
+                                'application/zip'
+                            ])
                             ->maxSize(10240) // 10MB
                             ->columnSpanFull()
-                            ->helperText('Maksimal 10MB per file. Format: PDF, DOC, DOCX, JPG, PNG, ZIP')
+                            ->helperText('File yang diizinkan: PDF, DOC, DOCX, JPG, PNG, ZIP (Maksimal 10MB per file)')
                             ->downloadable()
-                            ->previewable(false),
+                            ->previewable(false)
+                            ->visibility('public'), // Penting untuk S3
+
+                        // Display existing files dengan URL
+                        Forms\Components\Placeholder::make('existing_files')
+                            ->label('File yang sudah diupload')
+                            ->content(function ($record) {
+                                if (!$record || !$record->hasFiles()) {
+                                    return 'Belum ada file yang diupload';
+                                }
+
+                                $files = $record->file_urls;
+                                return collect($files)->map(function ($file) {
+                                    return "📎 {$file['name']} ({$file['size']} bytes)";
+                                })->implode('<br>');
+                            })
+                            ->columnSpanFull()
+                            ->visible(fn($record) => $record && $record->hasFiles()),
                     ])
                     ->collapsible()
                     ->collapsed(false),

@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
+use App\Helpers\FileHelper;
 
 class Modul extends Model
 {
@@ -61,5 +63,34 @@ class Modul extends Model
     public function progresses(): HasMany
     {
         return $this->hasMany(Progress::class, 'modul_id');
+    }
+
+    /**
+     * Get file URLs
+     */
+    public function getFileUrlsAttribute()
+    {
+        return FileHelper::getFileUrls($this->file_path);
+    }
+
+    /**
+     * Get single file URL (for backward compatibility)
+     */
+    public function getFileUrlAttribute()
+    {
+        if (empty($this->file_path)) {
+            return null;
+        }
+
+        $firstFile = is_array($this->file_path) ? $this->file_path[0] : $this->file_path;
+        return FileHelper::getFileUrl($firstFile);
+    }
+
+    /**
+     * Check if has files
+     */
+    public function hasFiles()
+    {
+        return !empty($this->file_path);
     }
 }

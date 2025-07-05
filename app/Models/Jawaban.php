@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Helpers\FileHelper;
 
 class Jawaban extends Model
 {
@@ -42,6 +43,22 @@ class Jawaban extends Model
     public function siswa(): BelongsTo
     {
         return $this->belongsTo(User::class, 'siswa_id');
+    }
+
+    /**
+     * Get file URLs
+     */
+    public function getFileUrlsAttribute()
+    {
+        return FileHelper::getFileUrls($this->url_file);
+    }
+
+    /**
+     * Check if has files
+     */
+    public function hasFiles()
+    {
+        return !empty($this->url_file);
     }
 
     protected static function booted()

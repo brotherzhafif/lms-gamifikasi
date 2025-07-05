@@ -51,9 +51,27 @@ class ModulResource extends Resource
                     ->required(),
 
                 Forms\Components\FileUpload::make('file_path')
+                    ->label('File Lampiran')
                     ->multiple()
+                    ->disk('public')
                     ->directory('modul-files')
-                    ->columnSpanFull(),
+                    ->acceptedFileTypes([
+                        'application/pdf',
+                        'application/msword',
+                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        'application/vnd.ms-powerpoint',
+                        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                        'image/jpeg',
+                        'image/png',
+                        'image/jpg',
+                        'application/zip',
+                        'text/plain'
+                    ])
+                    ->maxSize(10240) // 10MB
+                    ->downloadable()
+                    ->previewable()
+                    ->columnSpanFull()
+                    ->helperText('File yang diizinkan: PDF, DOC, DOCX, PPT, PPTX, JPG, PNG, ZIP, TXT (Maksimal 10MB per file)'),
 
                 Forms\Components\DateTimePicker::make('deadline'),
 

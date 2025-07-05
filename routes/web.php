@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ProgressController;
+use App\Http\Controllers\FileController;
 
 // Public route - redirect to appropriate panel based on role
 Route::get('/', function () {
@@ -67,6 +68,26 @@ Route::post('/logout', function (Illuminate\Http\Request $request) {
 // Additional helper routes for students
 Route::middleware(['auth', \App\Http\Middleware\SiswaMiddleware::class])->group(function () {
     Route::post('/siswa/progress/mark-complete', [ProgressController::class, 'store'])->name('siswa.progress.mark-complete');
+});
+
+// File download routes
+Route::middleware(['auth'])->group(function () {
+    // Preview routes (untuk buka di tab baru)
+    Route::get('/files/modul/{modul}/preview/{filename}', [FileController::class, 'previewModulFile'])
+        ->name('files.modul.preview');
+
+    Route::get('/files/jawaban/{jawaban}/preview/{filename}', [FileController::class, 'previewJawabanFile'])
+        ->name('files.jawaban.preview');
+
+    // Download routes (untuk download file)
+    Route::get('/files/modul/{modul}/download/{filename}', [FileController::class, 'downloadModulFile'])
+        ->name('files.modul.download');
+
+    Route::get('/files/jawaban/{jawaban}/download/{filename}', [FileController::class, 'downloadJawabanFile'])
+        ->name('files.jawaban.download');
+
+    Route::get('/files/url', [FileController::class, 'getFileUrl'])
+        ->name('files.url');
 });
 
 // All other routes are handled by Filament panels
