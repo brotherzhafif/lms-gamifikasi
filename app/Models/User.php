@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 
@@ -23,6 +24,7 @@ class User extends Authenticatable implements FilamentUser
     protected $fillable = [
         'nama',
         'nis',
+        'kelas_id',
         'email',
         'password',
         'role',
@@ -78,6 +80,14 @@ class User extends Authenticatable implements FilamentUser
     public function getFilamentName(): string
     {
         return $this->nama;
+    }
+
+    /**
+     * Relationship: User belongs to a kelas (for students)
+     */
+    public function kelas(): BelongsTo
+    {
+        return $this->belongsTo(Kelas::class);
     }
 
     /**

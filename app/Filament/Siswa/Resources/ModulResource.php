@@ -26,7 +26,10 @@ class ModulResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->where('is_active', true);
+        $user = Auth::user();
+        return parent::getEloquentQuery()
+            ->where('is_active', true)
+            ->where('kelas_id', $user->kelas_id);
     }
 
     public static function table(Table $table): Table
@@ -36,28 +39,40 @@ class ModulResource extends Resource
                 Tables\Columns\TextColumn::make('mataPelajaran.nama_mapel')
                     ->label('Mata Pelajaran')
                     ->badge()
+                    ->searchable()
                     ->color('primary')
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('kelas.nama_kelas')
+                    ->label('Kelas')
+                    ->badge()
+                    ->color('secondary')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('judul')
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('guru.nama')
                     ->label('Guru')
                     ->sortable(),
+
                 Tables\Columns\BadgeColumn::make('jenis')
                     ->colors([
                         'success' => 'materi',
                         'warning' => 'tugas',
                     ]),
+
                 Tables\Columns\TextColumn::make('poin_reward')
                     ->label('Poin')
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('deadline')
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->color(fn($record) => $record->deadline && $record->deadline->isPast() ? 'danger' : null)
                     ->placeholder('Tidak ada deadline'),
+
                 Tables\Columns\BadgeColumn::make('status')
                     ->label('Status')
                     ->getStateUsing(function ($record) {

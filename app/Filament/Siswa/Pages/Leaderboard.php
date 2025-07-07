@@ -23,7 +23,10 @@ class Leaderboard extends Page
 
     public function getLeaderboard()
     {
+        $userKelas = Auth::user()->kelas_id;
+
         $query = User::where('role', 'murid')
+            ->where('kelas_id', $userKelas) // Only students from same class
             ->leftJoin('progress', 'users.id', '=', 'progress.user_id')
             ->leftJoin('modul', 'progress.modul_id', '=', 'modul.id')
             ->leftJoin('mata_pelajaran', 'modul.mata_pelajaran_id', '=', 'mata_pelajaran.id');

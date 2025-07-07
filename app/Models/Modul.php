@@ -18,6 +18,7 @@ class Modul extends Model
     protected $fillable = [
         'guru_id',
         'mata_pelajaran_id',
+        'kelas_id',
         'judul',
         'isi',
         'jenis',
@@ -47,6 +48,14 @@ class Modul extends Model
     public function mataPelajaran(): BelongsTo
     {
         return $this->belongsTo(MataPelajaran::class, 'mata_pelajaran_id');
+    }
+
+    /**
+     * Relationship: Module belongs to a kelas
+     */
+    public function kelas(): BelongsTo
+    {
+        return $this->belongsTo(Kelas::class);
     }
 
     /**

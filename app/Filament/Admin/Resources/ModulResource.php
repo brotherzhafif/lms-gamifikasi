@@ -20,7 +20,7 @@ class ModulResource extends Resource
 
     protected static ?string $navigationLabel = 'Semua Modul';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {
@@ -33,6 +33,11 @@ class ModulResource extends Resource
                 Forms\Components\Select::make('mata_pelajaran_id')
                     ->relationship('mataPelajaran', 'nama_mapel')
                     ->label('Mata Pelajaran')
+                    ->required(),
+
+                Forms\Components\Select::make('kelas_id')
+                    ->relationship('kelas', 'nama_kelas')
+                    ->label('Kelas')
                     ->required(),
 
                 Forms\Components\TextInput::make('judul')
@@ -92,7 +97,14 @@ class ModulResource extends Resource
                 Tables\Columns\TextColumn::make('mataPelajaran.nama_mapel')
                     ->label('Mata Pelajaran')
                     ->badge()
+                    ->searchable()
                     ->color('primary')
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('kelas.nama_kelas')
+                    ->label('Kelas')
+                    ->badge()
+                    ->color('secondary')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('judul')
@@ -128,6 +140,10 @@ class ModulResource extends Resource
                 Tables\Filters\SelectFilter::make('mata_pelajaran_id')
                     ->relationship('mataPelajaran', 'nama_mapel')
                     ->label('Mata Pelajaran'),
+
+                Tables\Filters\SelectFilter::make('kelas_id')
+                    ->relationship('kelas', 'nama_kelas')
+                    ->label('Kelas'),
 
                 Tables\Filters\SelectFilter::make('jenis')
                     ->options([

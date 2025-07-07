@@ -36,6 +36,11 @@ class ModulResource extends Resource
                     ->label('Mata Pelajaran')
                     ->required(),
 
+                Forms\Components\Select::make('kelas_id')
+                    ->relationship('kelas', 'nama_kelas')
+                    ->label('Kelas')
+                    ->required(),
+
                 Forms\Components\TextInput::make('judul')
                     ->required()
                     ->maxLength(255),
@@ -97,8 +102,15 @@ class ModulResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('mataPelajaran.nama_mapel')
                     ->label('Mata Pelajaran')
+                    ->searchable()
                     ->badge()
                     ->color('primary')
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('kelas.nama_kelas')
+                    ->label('Kelas')
+                    ->badge()
+                    ->color('secondary')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('judul')
@@ -132,6 +144,10 @@ class ModulResource extends Resource
                 Tables\Filters\SelectFilter::make('mata_pelajaran_id')
                     ->relationship('mataPelajaran', 'nama_mapel')
                     ->label('Mata Pelajaran'),
+
+                Tables\Filters\SelectFilter::make('kelas_id')
+                    ->relationship('kelas', 'nama_kelas')
+                    ->label('Kelas'),
 
                 Tables\Filters\SelectFilter::make('jenis')
                     ->options([

@@ -2,47 +2,50 @@
 
 namespace App\Filament\Admin\Resources;
 
-use App\Filament\Admin\Resources\MataPelajaranResource\Pages;
-use App\Models\MataPelajaran;
+use App\Filament\Admin\Resources\KelasResource\Pages;
+use App\Filament\Admin\Resources\KelasResource\RelationManagers;
+use App\Models\Kelas;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class MataPelajaranResource extends Resource
+class KelasResource extends Resource
 {
-    protected static ?string $model = MataPelajaran::class;
+    protected static ?string $model = Kelas::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
 
     protected static ?string $navigationGroup = 'Master Data';
 
-    protected static ?string $navigationLabel = 'Mata Pelajaran';
+    protected static ?string $navigationLabel = 'Kelola Kelas';
 
-    protected static ?string $pluralModelLabel = 'Mata Pelajaran';
-
-    protected static ?int $navigationSort = 0;
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('nama_mapel')
-                    ->label('Nama Mata Pelajaran')
+                Forms\Components\TextInput::make('nama_kelas')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->label('Nama Kelas')
+                    ->placeholder('ex: X IPA 1'),
 
-                Forms\Components\TextInput::make('kode_mapel')
-                    ->label('Kode Mata Pelajaran')
+                Forms\Components\TextInput::make('kode_kelas')
                     ->required()
                     ->maxLength(10)
-                    ->unique(ignoreRecord: true),
+                    ->unique(ignoreRecord: true)
+                    ->label('Kode Kelas')
+                    ->placeholder('ex: X1'),
 
                 Forms\Components\Textarea::make('deskripsi')
+                    ->maxLength(500)
                     ->label('Deskripsi')
-                    ->rows(3)
-                    ->columnSpanFull(),
+                    ->placeholder('Deskripsi kelas (opsional)'),
 
                 Forms\Components\Toggle::make('is_active')
                     ->label('Status Aktif')
@@ -54,25 +57,33 @@ class MataPelajaranResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('kode_mapel')
+                Tables\Columns\TextColumn::make('nama_kelas')
+                    ->label('Nama Kelas')
+                    ->searchable()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('kode_kelas')
                     ->label('Kode')
+                    ->badge()
+                    ->color('primary')
                     ->searchable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('nama_mapel')
-                    ->label('Nama Mata Pelajaran')
-                    ->searchable()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('siswa_count')
+                    ->label('Jumlah Siswa')
+                    ->counts('siswa')
+                    ->badge()
+                    ->color('success'),
 
-                Tables\Columns\TextColumn::make('moduls_count')
+                Tables\Columns\TextColumn::make('modul_count')
                     ->label('Jumlah Modul')
                     ->counts('moduls')
-                    ->sortable(),
+                    ->badge()
+                    ->color('info'),
 
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Status')
-                    ->boolean()
-                    ->sortable(),
+                    ->boolean(),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat')
@@ -96,10 +107,20 @@ class MataPelajaranResource extends Resource
             ]);
     }
 
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListMataPelajarans::route('/'),
+            'index' => Pages\ListKelas::route('/'),
+            'create' => Pages\CreateKelas::route('/create'),
+            'view' => Pages\ViewKelas::route('/{record}'),
+            'edit' => Pages\EditKelas::route('/{record}/edit'),
         ];
     }
 }

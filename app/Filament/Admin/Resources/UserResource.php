@@ -17,9 +17,11 @@ class UserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
-    protected static ?string $navigationGroup = 'Manajemen User';
+    protected static ?string $navigationGroup = 'User Management';
 
     protected static ?string $navigationLabel = 'Kelola User';
+
+    protected static ?int $navigationSort = 0;
 
     public static function form(Form $form): Form
     {
@@ -44,6 +46,10 @@ class UserResource extends Resource
                     ->label('NIS')
                     ->maxLength(255)
                     ->visible(fn(Forms\Get $get): bool => $get('role') === 'murid'),
+                Forms\Components\Select::make('kelas_id')
+                    ->relationship('kelas', 'nama_kelas')
+                    ->label('Kelas')
+                    ->visible(fn(Forms\Get $get): bool => $get('role') === 'murid'),
                 Forms\Components\TextInput::make('password')
                     ->password()
                     ->required(fn(string $context): bool => $context === 'create')
@@ -66,6 +72,11 @@ class UserResource extends Resource
                     ->label('NIS')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('kelas.nama_kelas')
+                    ->label('Kelas')
+                    ->badge()
+                    ->color('primary')
+                    ->sortable(),
                 Tables\Columns\BadgeColumn::make('role')
                     ->colors([
                         'danger' => 'admin',
@@ -84,6 +95,9 @@ class UserResource extends Resource
                         'guru' => 'Guru',
                         'murid' => 'Murid',
                     ]),
+                Tables\Filters\SelectFilter::make('kelas_id')
+                    ->relationship('kelas', 'nama_kelas')
+                    ->label('Kelas'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

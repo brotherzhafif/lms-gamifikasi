@@ -31,8 +31,8 @@ class ProgressStatsWidget extends BaseWidget
                 ->descriptionIcon('heroicon-m-document-text')
                 ->color('warning'),
 
-            Stat::make('Modul Tersedia', Modul::where('is_active', true)->count())
-                ->description('Total modul yang tersedia')
+            Stat::make('Modul Tersedia', Modul::where('is_active', true)->where('kelas_id', Auth::user()->kelas_id)->count())
+                ->description('Total modul untuk kelas Anda')
                 ->descriptionIcon('heroicon-m-book-open')
                 ->color('primary'),
         ];
