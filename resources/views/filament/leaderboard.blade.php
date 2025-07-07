@@ -23,6 +23,44 @@
             </div>
         @endif
 
+        <!-- Filters Section (for Admin and Guru only) -->
+        @if(auth()->user()->role !== 'murid')
+            <div class="rounded-lg shadow bg-white dark:bg-gray-900 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">🔍 Filter Ranking</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    @if(auth()->user()->role === 'admin')
+                        <!-- Subject Filter for Admin -->
+                        <div>
+                            <label for="subject-filter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Mata Pelajaran
+                            </label>
+                            <select id="subject-filter" wire:model.live="selectedSubject"
+                                class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                                <option value="">Semua Mata Pelajaran</option>
+                                @foreach($this->getSubjects() as $subject)
+                                    <option value="{{ $subject->id }}">{{ $subject->nama_mapel }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
+
+                    <!-- Class Filter -->
+                    <div>
+                        <label for="class-filter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Kelas
+                        </label>
+                        <select id="class-filter" wire:model.live="selectedClass"
+                            class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                            <option value="">Semua Kelas</option>
+                            @foreach($this->getClasses() as $class)
+                                <option value="{{ $class->id }}">{{ $class->nama_kelas }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- Leaderboard Table -->
         <div class="rounded-lg shadow bg-white dark:bg-gray-900">
             <div class="p-6 border-b border-gray-200 dark:border-gray-700">

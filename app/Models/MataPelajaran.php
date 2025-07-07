@@ -30,4 +30,9 @@ class MataPelajaran extends Model
     {
         return $this->hasMany(Modul::class);
     }
+
+    public function modul()
+    {
+        return $this->hasMany(Modul::class, 'mata_pelajaran_id');
+    }
 }

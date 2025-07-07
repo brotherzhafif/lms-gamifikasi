@@ -64,11 +64,6 @@ class MataPelajaranResource extends Resource
                     ->searchable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('moduls_count')
-                    ->label('Jumlah Modul')
-                    ->counts('moduls')
-                    ->sortable(),
-
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Status')
                     ->boolean()

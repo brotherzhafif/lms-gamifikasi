@@ -26,9 +26,8 @@ class SiswaPanelProvider extends PanelProvider
             ->id('siswa')
             ->path('siswa')
             ->brandName('LMS Gamifikasi - Siswa')
-            ->brandLogo(asset('icon.png'))
-            ->brandLogoHeight('2rem')
             ->favicon(asset('icon.png'))
+            ->brandLogoHeight('2rem')
             ->colors([
                 'primary' => Color::Green,
             ])
@@ -39,7 +38,7 @@ class SiswaPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Siswa/Widgets'), for: 'App\\Filament\\Siswa\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
+                \App\Filament\Siswa\Widgets\StudentProfileWidget::class,
                 \App\Filament\Siswa\Widgets\ProgressStatsWidget::class,
             ])
             ->middleware([

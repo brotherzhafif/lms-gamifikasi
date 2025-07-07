@@ -106,15 +106,15 @@ php artisan storage:link
 
 ### 8. **Compile Assets**
 
-```bash
+````bash
 npm run dev
-```
+```w
 
 ### 9. **Jalankan Server**
 
 ```bash
 php artisan serve
-```
+````
 
 ---
 
@@ -132,7 +132,7 @@ Berdasarkan `DatabaseSeeder.php`, berikut adalah email dan password untuk setiap
 
 -   **Guru Matematika:**
 
-    -   **Email:** `guru.matematika@lms.id`
+    -   **Email:** `guru.matematika@lms.id` 
     -   **Password:** `password`
     -   **Nama:** Dr. Budi Santoso
 

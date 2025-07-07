@@ -19,6 +19,7 @@ class EditJawaban extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            // Submit action only - edit and delete actions removed
             Actions\Action::make('kirim')
                 ->label('📤 Kirim Jawaban')
                 ->color('primary')
@@ -52,8 +53,6 @@ class EditJawaban extends EditRecord
                     return redirect($this->getResource()::getUrl('index'));
                 }),
             Actions\ViewAction::make(),
-            Actions\DeleteAction::make()
-                ->visible(fn() => $this->record->status === 'draft'),
         ];
     }
 

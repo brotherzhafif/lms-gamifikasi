@@ -75,12 +75,6 @@ class KelasResource extends Resource
                     ->badge()
                     ->color('success'),
 
-                Tables\Columns\TextColumn::make('modul_count')
-                    ->label('Jumlah Modul')
-                    ->counts('moduls')
-                    ->badge()
-                    ->color('info'),
-
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Status')
                     ->boolean(),

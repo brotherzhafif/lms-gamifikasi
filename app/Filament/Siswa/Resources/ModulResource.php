@@ -113,6 +113,10 @@ class ModulResource extends Resource
                     }),
             ])
             ->filters([
+                Tables\Filters\SelectFilter::make('mata_pelajaran_id')
+                    ->relationship('mataPelajaran', 'nama_mapel')
+                    ->label('Mata Pelajaran'),
+
                 Tables\Filters\SelectFilter::make('jenis')
                     ->options([
                         'materi' => 'Materi',

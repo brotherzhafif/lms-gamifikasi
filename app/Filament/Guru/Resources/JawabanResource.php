@@ -81,6 +81,11 @@ class JawabanResource extends Resource
                     ->label('Siswa')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('siswa.kelas.nama_kelas')
+                    ->label('Kelas')
+                    ->badge()
+                    ->color('secondary')
+                    ->sortable(),
                 Tables\Columns\BadgeColumn::make('status')
                     ->colors([
                         'danger' => 'belum',
@@ -110,6 +115,14 @@ class JawabanResource extends Resource
                 Tables\Filters\SelectFilter::make('modul_id')
                     ->relationship('modul', 'judul', fn(Builder $query) => $query->where('guru_id', Auth::id()))
                     ->label('Modul'),
+
+                Tables\Filters\SelectFilter::make('mata_pelajaran_id')
+                    ->relationship('modul.mataPelajaran', 'nama_mapel', fn(Builder $query) => $query->whereHas('modul', fn($q) => $q->where('guru_id', Auth::id())))
+                    ->label('Mata Pelajaran'),
+
+                Tables\Filters\SelectFilter::make('kelas_id')
+                    ->relationship('siswa.kelas', 'nama_kelas')
+                    ->label('Kelas Siswa'),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

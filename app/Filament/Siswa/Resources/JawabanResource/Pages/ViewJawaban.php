@@ -18,8 +18,7 @@ class ViewJawaban extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\EditAction::make()
-                ->visible(fn() => in_array($this->record->status, ['draft', 'dikirim']) && $this->record->status !== 'dinilai'),
+            // Removed edit action for student tasks
         ];
     }
 
@@ -55,7 +54,7 @@ class ViewJawaban extends ViewRecord
                                         ->badge()
                                         ->color('warning')
                                         ->formatStateUsing(fn($state) => "⭐ {$state} Poin"),
-                                ],),
+                                ], ),
 
                             Infolists\Components\Grid::make(1)
                                 ->schema([

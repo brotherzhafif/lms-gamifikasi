@@ -6,19 +6,20 @@ use App\Models\User;
 use App\Models\Progress;
 use App\Models\Modul;
 use App\Models\MataPelajaran;
+use App\Models\Kelas;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\DB;
-use Livewire\Attributes\Reactive;
 
 class Leaderboard extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-trophy';
     protected static ?string $navigationGroup = 'Statistik';
     protected static ?string $navigationLabel = 'Ranking Siswa';
-    protected static string $view = 'filament.leaderboard';
+    protected static string $view = 'filament.admin.leaderboard';
 
-    #[Reactive]
     public $selectedSubject = '';
+
+    public $selectedClass = '';
 
     public function getLeaderboard()
     {
@@ -30,6 +31,10 @@ class Leaderboard extends Page
 
         if ($this->selectedSubject) {
             $query->where('mata_pelajaran.id', $this->selectedSubject);
+        }
+
+        if ($this->selectedClass) {
+            $query->where('users.kelas_id', $this->selectedClass);
         }
 
         return $query->select([
@@ -75,6 +80,13 @@ class Leaderboard extends Page
     {
         return MataPelajaran::where('is_active', true)
             ->orderBy('nama_mapel')
+            ->get();
+    }
+
+    public function getClasses()
+    {
+        return Kelas::where('is_active', true)
+            ->orderBy('nama_kelas')
             ->get();
     }
 }

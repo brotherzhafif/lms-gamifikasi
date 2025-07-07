@@ -27,7 +27,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->brandName('LMS Gamifikasi - Admin')
-            ->brandLogo(asset('icon.png'))
+            // ->brandLogo(asset('icon.png'))
             ->brandLogoHeight('2rem')
             ->favicon(asset('icon.png'))
             ->colors([

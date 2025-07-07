@@ -272,10 +272,7 @@ class JawabanResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make()
-                    ->visible(fn($record) => in_array($record->status, ['draft', 'dikirim']) && $record->status !== 'dinilai'),
-                Tables\Actions\DeleteAction::make()
-                    ->visible(fn($record) => $record->status === 'draft'),
+                // Removed edit and delete actions for tasks
             ])
             ->defaultSort('created_at', 'desc');
     }

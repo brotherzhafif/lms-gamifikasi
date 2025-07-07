@@ -48,6 +48,11 @@ class ProgressResource extends Resource
                     ->label('Siswa')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('user.kelas.nama_kelas')
+                    ->label('Kelas')
+                    ->badge()
+                    ->color('secondary')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('modul.judul')
                     ->label('Modul')
                     ->searchable()
@@ -76,9 +81,18 @@ class ProgressResource extends Resource
                         'selesai_materi' => 'Selesai Materi',
                         'selesai_tugas' => 'Selesai Tugas',
                     ]),
+
+                Tables\Filters\SelectFilter::make('mata_pelajaran_id')
+                    ->relationship('modul.mataPelajaran', 'nama_mapel')
+                    ->label('Mata Pelajaran'),
+
                 Tables\Filters\SelectFilter::make('user_id')
                     ->relationship('user', 'nama')
                     ->label('Siswa'),
+
+                Tables\Filters\SelectFilter::make('kelas_id')
+                    ->relationship('user.kelas', 'nama_kelas')
+                    ->label('Kelas'),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

@@ -9,7 +9,6 @@ use App\Models\MataPelajaran;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Attributes\Reactive;
 
 class Leaderboard extends Page
 {
@@ -18,7 +17,6 @@ class Leaderboard extends Page
     protected static ?string $navigationLabel = 'Ranking Siswa';
     protected static string $view = 'filament.leaderboard';
 
-    #[Reactive]
     public $selectedSubject = '';
 
     public function getLeaderboard()
@@ -26,7 +24,7 @@ class Leaderboard extends Page
         $userKelas = Auth::user()->kelas_id;
 
         $query = User::where('role', 'murid')
-            ->where('kelas_id', $userKelas) // Only students from same class
+            ->where('users.kelas_id', $userKelas) // Only students from same class - specify table
             ->leftJoin('progress', 'users.id', '=', 'progress.user_id')
             ->leftJoin('modul', 'progress.modul_id', '=', 'modul.id')
             ->leftJoin('mata_pelajaran', 'modul.mata_pelajaran_id', '=', 'mata_pelajaran.id');
