@@ -12,7 +12,7 @@
                             {{ $this->getViewData()['user']->nama }}
                         </h3>
                         <p class="text-blue-100 mb-2">
-                            {{ $this->getViewData()['user']->kelas?->nama ?? 'Belum ada kelas' }}
+                            {{ $this->getViewData()['user']->kelas?->nama_kelas ?? 'Belum ada kelas' }}
                         </p>
                         <div class="flex items-center space-x-4 text-blue-100 text-sm">
                             <span class="flex items-center space-x-1">
