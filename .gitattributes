@@ -1,11 +1,8 @@
-* text=auto eol=lf
+# 1. Reset: Anggap SEMUA file di repo ini tidak perlu dihitung
+* linguist-vendored
 
-*.blade.php diff=html
-*.css diff=css
-*.html diff=html
-*.md diff=markdown
-*.php diff=php
-
-/.github export-ignore
-CHANGELOG.md export-ignore
-.styleci.yml export-ignore
+# 2. Whitelist: Hanya hitung file .dart di folder spesifik ini
+app/Models/** -linguist-vendored
+app/Helpers/** -linguist-vendored
+app/Http/** -linguist-vendored
+app/Providers/** -linguist-vendored
